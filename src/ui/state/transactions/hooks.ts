@@ -191,6 +191,41 @@ export function useCreateMultiOrdinalsTxCallback() {
   );
 }
 
+export function useCreateSplitTxCallback() {
+  const dispatch = useAppDispatch();
+  const wallet = useWallet();
+  const fromAddress = useAccountAddress();
+  const utxos = useUtxos();
+  return useCallback(
+    async (inscriptionId: string, feeRate: number) => {
+      const psbtHex = await wallet.splitInscription({
+        inscriptionId,
+        feeRate
+      });
+      const psbt = Psbt.fromHex(psbtHex);
+      const rawtx = psbt.extractTransaction().toHex();
+      dispatch(
+        transactionsActions.updateOrdinalsTx({
+          rawtx,
+          psbtHex,
+          fromAddress,
+          // inscription,
+          feeRate
+        })
+      );
+      const rawTxInfo: RawTxInfo = {
+        psbtHex,
+        rawtx,
+        toAddressInfo: {
+          address: fromAddress
+        }
+      };
+      return rawTxInfo;
+    },
+    [dispatch, wallet, fromAddress, utxos]
+  );
+}
+
 export function usePushOrdinalsTxCallback() {
   const dispatch = useAppDispatch();
   const wallet = useWallet();

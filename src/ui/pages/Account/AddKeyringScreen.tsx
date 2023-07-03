@@ -1,6 +1,7 @@
 import { Card, Column, Content, Header, Layout, Text } from '@/ui/components';
 
 import { useNavigate } from '../MainRoute';
+import { WordsType } from '../Account/CreateHDWalletScreen';
 
 export default function AddKeyringScreen() {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ export default function AddKeyringScreen() {
           <Card
             justifyCenter
             onClick={(e) => {
-              navigate('CreateHDWalletScreen', { isImport: false, words: 24 });
+              navigate('CreateHDWalletScreen', { isImport: false, wordsType: WordsType.WORDS_24 });
             }}>
             <Column full justifyCenter>
               <Text text="Create with mnemonics (24-words)" size="sm" />
@@ -44,17 +45,7 @@ export default function AddKeyringScreen() {
               navigate('CreateHDWalletScreen', { isImport: true });
             }}>
             <Column full justifyCenter>
-              <Text text="Restore from mnemonics (12-words)" size="sm" />
-            </Column>
-          </Card>
-
-          <Card
-            justifyCenter
-            onClick={(e) => {
-              navigate('CreateHDWalletScreen', { isImport: true, words: 24 });
-            }}>
-            <Column full justifyCenter>
-              <Text text="Restore from mnemonics (24-words)" size="sm" />
+              <Text text="Restore from mnemonics (12-words, 24-words)" size="sm" />
             </Column>
           </Card>
 

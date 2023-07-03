@@ -1,7 +1,7 @@
-import { Checkbox } from 'antd';
+import { Checkbox, Dropdown, Radio } from 'antd';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
+import * as bip39 from 'bip39';
 import bitcore from 'bitcore-lib';
-import Mnemonic from 'bitcore-mnemonic';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -141,7 +141,7 @@ function Step1_Import({
   contextData: ContextData;
   updateContextData: (params: UpdateContextDataParams) => void;
 }) {
-  const [keys, setKeys] = useState<Array<string>>(new Array(contextData.words).fill(''));
+  const [keys, setKeys] = useState<Array<string>>(new Array(wordsItems[contextData.wordsType].count).fill(''));
   const [curInputIndex, setCurInputIndex] = useState(0);
   const [hover, setHover] = useState(999);
   const [disabled, setDisabled] = useState(true);
@@ -181,7 +181,7 @@ function Step1_Import({
     }
 
     const mnemonic = keys.join(' ');
-    if (!Mnemonic.isValid(mnemonic)) {
+    if (!bip39.validateMnemonic(mnemonic)) {
       return;
     }
 
@@ -205,7 +205,24 @@ function Step1_Import({
   return (
     <Column gap="lg">
       <Text text="Secret Recovery Phrase" preset="title-bold" textCenter />
-      <Text text={`Import an existing wallet with your ${contextData.words} word secret recovery phrase`} preset="sub" textCenter />
+      <Text text="Import an existing wallet with your secret recovery phrase" preset="sub" textCenter />
+
+      <Row justifyCenter>
+        <Radio.Group
+          onChange={(e) => {
+            const wordsType = e.target.value;
+            updateContextData({ wordsType });
+            setKeys(new Array(wordsItems[wordsType].count).fill(''));
+          }}
+          value={contextData.wordsType}>
+          {wordsItems.map((v) => (
+            <Radio key={v.key} value={v.key}>
+              {v.label}
+            </Radio>
+          ))}
+        </Radio.Group>
+      </Row>
+
       <Row justifyCenter>
         <Grid columns={2}>
           {keys.map((_, index) => {
@@ -511,10 +528,27 @@ enum TabType {
   STEP3 = 'STEP3'
 }
 
+export enum WordsType {
+  WORDS_12,
+  WORDS_24
+}
+
+const wordsItems = [
+  {
+    key: WordsType.WORDS_12,
+    label: '12 words',
+    count: 12
+  },
+  {
+    key: WordsType.WORDS_24,
+    label: '24 words',
+    count: 24
+  }
+];
+
 interface ContextData {
   mnemonics: string;
   entropy: number;
-  words: number;
   hdPath: string;
   passphrase: string;
   addressType: AddressType;
@@ -525,6 +559,7 @@ interface ContextData {
   isCustom: boolean;
   customHdPath: string;
   addressTypeIndex: number;
+  wordsType: WordsType;
 }
 
 interface UpdateContextDataParams {
@@ -538,22 +573,22 @@ interface UpdateContextDataParams {
   isCustom?: boolean;
   customHdPath?: string;
   addressTypeIndex?: number;
+  wordsType?: WordsType;
 }
 
 export default function CreateHDWalletScreen() {
   const navigate = useNavigate();
 
   const { state } = useLocation();
-  const { isImport, fromUnlock, words = 12 } = state as {
+  const { isImport, fromUnlock, wordsType = WordsType.WORDS_12 } = state as {
     isImport: boolean;
     fromUnlock: boolean;
-    words?: number;
+    wordsType?: number;
   };
 
   const [contextData, setContextData] = useState<ContextData>({
     mnemonics: '',
-    entropy: words / 3 * 32,
-    words: words,
+    entropy: wordsItems[wordsType].count / 3 * 32,
     hdPath: '',
     passphrase: '',
     addressType: AddressType.P2WPKH,
@@ -563,7 +598,8 @@ export default function CreateHDWalletScreen() {
     isRestore: isImport,
     isCustom: false,
     customHdPath: '',
-    addressTypeIndex: 0
+    addressTypeIndex: 0,
+    wordsType: WordsType.WORDS_12
   });
 
   const updateContextData = useCallback(
