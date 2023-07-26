@@ -54,6 +54,9 @@ export interface WalletController {
   getAddressBalance(address: string): Promise<BitcoinBalance>;
   getAddressCacheBalance(address: string): Promise<BitcoinBalance>;
   getMultiAddressAssets(addresses: string): Promise<AddressAssets[]>;
+  findGroupAssets(
+    groups: { type: number; address_arr: string[] }[]
+  ): Promise<{ type: number; address_arr: string[]; satoshis_arr: number[] }[]>;
 
   getAddressInscriptions(
     address: string,
@@ -91,7 +94,8 @@ export interface WalletController {
     mnemonic: string,
     hdPath: string,
     passphrase: string,
-    addressType: AddressType
+    addressType: AddressType,
+    accountCount: number
   ): Promise<{ address: string; type: string }[]>;
 
   createTmpKeyringWithPrivateKey(privateKey: string, addressType: AddressType): Promise<WalletKeyring>;
@@ -100,7 +104,8 @@ export interface WalletController {
     mnemonic: string,
     hdPath: string,
     passphrase: string,
-    addressType: AddressType
+    addressType: AddressType,
+    accountCount?: number
   ): Promise<WalletKeyring>;
   removeKeyring(keyring: WalletKeyring): Promise<WalletKeyring>;
   deriveNewAccountFromMnemonic(keyring: WalletKeyring, alianName?: string): Promise<string[]>;
@@ -109,7 +114,6 @@ export interface WalletController {
   getContactsByMap: () => ContactBookStore;
   updateAlianName: (pubkey: string, name: string) => Promise<void>;
 
-  changeAccount(account: Account): Promise<void>;
   getCurrentAccount(): Promise<Account>;
   getAccounts(): Promise<Account[]>;
   getNextAlianName: (keyring: WalletKeyring) => Promise<string>;
@@ -149,7 +153,7 @@ export interface WalletController {
 
   getCurrentKeyring(): Promise<WalletKeyring>;
   getKeyrings(): Promise<WalletKeyring[]>;
-  changeKeyring(keyring: WalletKeyring): Promise<void>;
+  changeKeyring(keyring: WalletKeyring, accountIndex?: number): Promise<void>;
   getAllAddresses(keyring: WalletKeyring, index: number): Promise<string[]>;
 
   setKeyringAlianName(keyring: WalletKeyring, name: string): Promise<WalletKeyring>;

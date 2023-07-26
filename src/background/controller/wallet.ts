@@ -126,6 +126,10 @@ export class WalletController extends BaseController {
     return openapiService.getMultiAddressAssets(addresses);
   };
 
+  findGroupAssets = (groups: { type: number; address_arr: string[] }[]) => {
+    return openapiService.findGroupAssets(groups);
+  };
+
   getAddressCacheBalance = (address: string | undefined): BitcoinBalance => {
     const defaultBalance: BitcoinBalance = {
       confirm_amount: '0',
@@ -242,9 +246,16 @@ export class WalletController extends BaseController {
     mnemonic: string,
     hdPath: string,
     passphrase: string,
-    addressType: AddressType
+    addressType: AddressType,
+    accountCount: number
   ) => {
-    const originKeyring = await keyringService.createKeyringWithMnemonics(mnemonic, hdPath, passphrase, addressType);
+    const originKeyring = await keyringService.createKeyringWithMnemonics(
+      mnemonic,
+      hdPath,
+      passphrase,
+      addressType,
+      accountCount
+    );
     keyringService.removePreMnemonics();
 
     const displayedKeyring = await keyringService.displayForKeyring(
@@ -260,11 +271,16 @@ export class WalletController extends BaseController {
     mnemonic: string,
     hdPath: string,
     passphrase: string,
-    addressType: AddressType
+    addressType: AddressType,
+    accountCount = 1
   ) => {
+    const activeIndexes: number[] = [];
+    for (let i = 0; i < accountCount; i++) {
+      activeIndexes.push(i);
+    }
     const originKeyring = keyringService.createTmpKeyring('HD Key Tree', {
       mnemonic,
-      activeIndexes: [0],
+      activeIndexes,
       hdPath,
       passphrase
     });
@@ -298,17 +314,12 @@ export class WalletController extends BaseController {
     const currentKeyring = await this.getCurrentKeyring();
     if (!currentKeyring) throw new Error('no current keyring');
     keyring = currentKeyring;
-    this.changeAccount(keyring.accounts[keyring.accounts.length - 1]);
+    this.changeKeyring(keyring, keyring.accounts.length - 1);
   };
 
   getAccountsCount = async () => {
     const accounts = await keyringService.getAccounts();
     return accounts.filter((x) => x).length;
-  };
-
-  changeAccount = (account: Account) => {
-    preferenceService.setCurrentAccount(account);
-    openapiService.setClientAddress(account.address);
   };
 
   changeKeyring = (keyring: WalletKeyring, accountIndex = 0) => {
@@ -388,7 +399,10 @@ export class WalletController extends BaseController {
             publicKey: account.pubkey,
             sighashTypes: v.sighashType ? [v.sighashType] : undefined
           });
-          if (keyring.addressType === AddressType.P2TR && !v.tapInternalKey) {
+          if (
+            (keyring.addressType === AddressType.P2TR || keyring.addressType === AddressType.M44_P2TR) &&
+            !v.tapInternalKey
+          ) {
             v.tapInternalKey = toXOnly(Buffer.from(account.pubkey, 'hex'));
           }
         }
