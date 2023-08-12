@@ -40,7 +40,8 @@ export const svgRegistry = {
   'circle-info': '/images/icons/circle-info.svg',
   bitcoin: './images/icons/bitcoin.svg',
   'circle-question': '/images/icons/circle-question.svg',
-  litecoin: './images/icons/litecoin.svg'
+  litecoin: './images/icons/litecoin.svg',
+  split: '/images/icons/scissors.svg'
 };
 
 const iconImgList: Array<IconTypes> = ['success', 'delete', 'btc', 'ltc'];

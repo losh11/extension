@@ -28,7 +28,7 @@ import {
   OPENAPI_URL_TESTNET
 } from '@/shared/constant';
 import { AddressType, BitcoinBalance, NetworkType, ToSignInput, UTXO, WalletKeyring, Account } from '@/shared/types';
-import { createSendBTC, createSendMultiOrds, createSendOrd, createSplitOrdUtxo } from '@unisat/ord-utils';
+import { createSendBTC, createSendMultiOrds, createSendOrd, createSplitOrdUtxoV2 } from '@unisat/ord-utils';
 
 import { ContactBookItem } from '../service/contactBook';
 import { OpenApiService } from '../service/openapi';
@@ -754,7 +754,16 @@ export class WalletController extends BaseController {
     return psbt.toHex();
   };
 
-  splitInscription = async ({ inscriptionId, feeRate }: { to: string; inscriptionId: string; feeRate: number }) => {
+  splitInscription = async ({
+    inscriptionId,
+    feeRate,
+    outputValue
+  }: {
+    to: string;
+    inscriptionId: string;
+    feeRate: number;
+    outputValue: number;
+  }) => {
     const account = await preferenceService.getCurrentAccount();
     if (!account) throw new Error('no current account');
 
@@ -769,7 +778,7 @@ export class WalletController extends BaseController {
     const btc_utxos = await openapiService.getAddressUtxo(account.address);
     const utxos = [utxo].concat(btc_utxos);
 
-    const psbt = await createSplitOrdUtxo({
+    const { psbt, splitedCount } = await createSplitOrdUtxoV2({
       utxos: utxos.map((v) => {
         return {
           txId: v.txId,
@@ -786,12 +795,16 @@ export class WalletController extends BaseController {
       changeAddress: account.address,
       pubkey: account.pubkey,
       feeRate,
-      enableRBF: false
+      enableRBF: false,
+      outputValue
     });
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     psbt.__CACHE.__UNSAFE_SIGN_NONSEGWIT = false;
-    return psbt.toHex();
+    return {
+      psbtHex: psbt.toHex(),
+      splitedCount
+    };
   };
 
   pushTx = async (rawtx: string) => {
@@ -1158,6 +1171,10 @@ export class WalletController extends BaseController {
       throw new Error('UTXO not found.');
     }
     return utxo;
+  };
+
+  checkWebsite = (website: string) => {
+    return openapiService.checkWebsite(website);
   };
 }
 

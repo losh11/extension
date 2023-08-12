@@ -267,7 +267,7 @@ export const UNISAT_DOMAIN = '.unilit';
 export const LTC_DOMAIN = '.ltc';
 export const LITE_DOMAIN = '.lite';
 
-export const GITHUB_URL = 'https://github.com/ynohtna92/extension-ltc';
+export const GITHUB_URL = 'https://github.com/LiteVerseHoldings/extension-ltc';
 export const DISCORD_URL = 'https://discord.gg/mGEPM6ECM2';
 export const TWITTER_URL = 'https://twitter.com/litescribe_io';
 

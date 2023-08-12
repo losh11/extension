@@ -8,6 +8,7 @@ import { AddressText } from '@/ui/components/AddressText';
 import { Empty } from '@/ui/components/Empty';
 import InscriptionPreview from '@/ui/components/InscriptionPreview';
 import { TabBar } from '@/ui/components/TabBar';
+import { WarningPopver } from '@/ui/components/WarningPopver';
 import WebsiteBar from '@/ui/components/WebsiteBar';
 import { useAccountAddress } from '@/ui/state/accounts/hooks';
 import { colors } from '@/ui/theme/colors';
@@ -140,13 +141,15 @@ interface TxInfo {
   txError: string;
   decodedPsbts: DecodedPsbt[];
   currentIndex: number;
+  isScammer: boolean;
 }
 
 const initTxInfo: TxInfo = {
   psbtHexs: [],
   txError: '',
   decodedPsbts: [],
-  currentIndex: 0
+  currentIndex: 0,
+  isScammer: false
 };
 
 export default function MultiSignPsbt({
@@ -169,20 +172,33 @@ export default function MultiSignPsbt({
 
   const tools = useTools();
 
+  const [warningState, setWarningState] = useState({ visible: false, text: '' });
+
   const init = async () => {
     const txError = '';
 
+    const { isScammer } = await wallet.checkWebsite(session?.origin || '');
     const decodedPsbts: DecodedPsbt[] = [];
+
+    let warningInfo = '';
     for (let i = 0; i < psbtHexs.length; i++) {
       const psbtHex = psbtHexs[i];
       const decodedPsbt = await wallet.decodePsbt(psbtHex);
       decodedPsbts.push(decodedPsbt);
+      if (decodedPsbt.warning) {
+        warningInfo += decodedPsbt.warning + '\n';
+      }
     }
+    if (warningInfo.length > 0) {
+      setWarningState({ visible: true, text: warningInfo });
+    }
+
     setTxInfo({
       decodedPsbts,
       psbtHexs,
       txError: '',
-      currentIndex: 0
+      currentIndex: 0,
+      isScammer
     });
 
     setLoading(false);
@@ -274,6 +290,26 @@ export default function MultiSignPsbt({
       <Header>
         <WebsiteBar session={session} />
       </Header>
+    );
+  }
+
+  if (txInfo.isScammer || txInfo.decodedPsbts.find((v) => v.hasScammerAddress)) {
+    return (
+      <Layout>
+        <Content>
+          <Column>
+            <Text text="Phishing Detection" preset="title-bold" textCenter mt="xxl" />
+            <Text text="Malicious behavior and suspicious activity have been detected." mt="md" />
+            <Text text="Your access to this page has been restricted by UniSat Wallet as it might be unsafe." mt="md" />
+          </Column>
+        </Content>
+
+        <Footer>
+          <Row full>
+            <Button text="Reject (blocked by UniSat Wallet)" preset="danger" onClick={handleCancel} full />
+          </Row>
+        </Footer>
+      </Layout>
     );
   }
 
@@ -388,7 +424,7 @@ export default function MultiSignPsbt({
             items={tabItems}
             preset="number-page"
             onTabClick={(key) => {
-              updateTxInfo(key);
+              updateTxInfo({ currentIndex: key });
             }}
           />
         </Row>
@@ -402,12 +438,24 @@ export default function MultiSignPsbt({
           />
           <Button
             preset="primary"
-            text={txInfo.currentIndex === txInfo.psbtHexs.length - 1 ? 'Sign All' : 'Next'}
+            text={
+              txInfo.currentIndex === txInfo.psbtHexs.length - 1
+                ? `Sign All (${txInfo.psbtHexs.length} transactions)`
+                : 'Next'
+            }
             onClick={handleConfirm}
             disabled={isValid == false}
             full
           />
         </Row>
+        {warningState.visible && (
+          <WarningPopver
+            text={warningState.text}
+            onClose={() => {
+              setWarningState({ visible: false, text: '' });
+            }}
+          />
+        )}
       </Footer>
     </Layout>
   );

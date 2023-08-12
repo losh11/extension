@@ -1,14 +1,14 @@
 {
   "name": "litescribe-extension",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "private": true,
-  "homepage": "https://github.com/ynohtna92/extension-ltc#readme",
+  "homepage": "https://github.com/LiteVerseHoldings/extension-ltc#readme",
   "bugs": {
-    "url": "https://github.com/ynohtna92/extension-ltc/issues"
+    "url": "https://github.com/LiteVerseHoldings/extension-ltc/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ynohtna92/extension-ltc.git"
+    "url": "https://github.com/LiteVerseHoldings/extension-ltc.git"
   },
   "scripts": {
     "clean": "mkdir -p dist && rm -rf dist/* && cp -r build/_raw/* dist",
@@ -53,7 +53,7 @@
     "@types/react-dom": "^18.0.4",
     "@unisat/bitcoin-hd-keyring": "1.0.0",
     "@unisat/bitcoinjs-wallet": "^0.1.0",
-    "@unisat/ord-utils": "0.3.1",
+    "@unisat/ord-utils": "0.3.3",
     "antd": "^4.20.4",
     "antd-dayjs-webpack-plugin": "1.0.6",
     "assert": "^2.0.0",

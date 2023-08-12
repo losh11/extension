@@ -134,7 +134,11 @@ export interface WalletController {
 
   sendInscriptions(data: { to: string; inscriptionIds: string[]; feeRate: number }): Promise<string>;
 
-  splitInscription(data: { inscriptionId: string; feeRate: number }): Promise<string>;
+  splitInscription(data: {
+    inscriptionId: string;
+    feeRate: number;
+    outputValue: number;
+  }): Promise<{ psbtHex: string; splitedCount: number }>;
 
   pushTx(rawtx: string): Promise<string>;
 
@@ -204,6 +208,8 @@ export interface WalletController {
   setSkippedVersion(version: string): Promise<void>;
 
   getInscriptionUtxoDetail(inscriptionId: string): Promise<UTXO_Detail>;
+
+  checkWebsite(website: string): Promise<{ isScammer: boolean }>;
 }
 
 const WalletContext = createContext<{
