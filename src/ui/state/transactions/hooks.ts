@@ -1,9 +1,9 @@
-import { Psbt } from 'bitcoinjs-lib';
 import { useCallback, useMemo } from 'react';
 
 import { RawTxInfo, ToAddressInfo } from '@/shared/types';
 import { useTools } from '@/ui/components/ActionComponent';
 import { satoshisToAmount, satoshisToBTC, sleep, useWallet } from '@/ui/utils';
+import { bitcoin } from '@unisat/wallet-sdk/lib/bitcoin-core';
 
 import { AppState } from '..';
 import { useAccountAddress, useCurrentAccount } from '../accounts/hooks';
@@ -52,7 +52,7 @@ export function useCreateBitcoinTxCallback() {
         receiverToPayFee,
         feeRate
       });
-      const psbt = Psbt.fromHex(psbtHex);
+      const psbt = bitcoin.Psbt.fromHex(psbtHex);
       const rawtx = psbt.extractTransaction().toHex();
       const fee = psbt.getFee();
       dispatch(
@@ -131,7 +131,7 @@ export function useCreateOrdinalsTxCallback() {
         feeRate,
         outputValue
       });
-      const psbt = Psbt.fromHex(psbtHex);
+      const psbt = bitcoin.Psbt.fromHex(psbtHex);
       const rawtx = psbt.extractTransaction().toHex();
       dispatch(
         transactionsActions.updateOrdinalsTx({
@@ -170,7 +170,7 @@ export function useCreateMultiOrdinalsTxCallback() {
         inscriptionIds,
         feeRate
       });
-      const psbt = Psbt.fromHex(psbtHex);
+      const psbt = bitcoin.Psbt.fromHex(psbtHex);
       const rawtx = psbt.extractTransaction().toHex();
       dispatch(
         transactionsActions.updateOrdinalsTx({
@@ -203,7 +203,7 @@ export function useCreateSplitTxCallback() {
         feeRate,
         outputValue
       });
-      const psbt = Psbt.fromHex(psbtHex);
+      const psbt = bitcoin.Psbt.fromHex(psbtHex);
       const rawtx = psbt.extractTransaction().toHex();
       dispatch(
         transactionsActions.updateOrdinalsTx({

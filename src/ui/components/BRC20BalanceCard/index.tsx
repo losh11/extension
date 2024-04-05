@@ -17,7 +17,14 @@ export interface BRC20BalanceCardProps {
 
 export default function BRC20BalanceCard(props: BRC20BalanceCardProps) {
   const {
-    tokenBalance: { ticker, overallBalance, transferableBalance, availableBalance },
+    tokenBalance: {
+      ticker,
+      overallBalance,
+      transferableBalance,
+      availableBalance,
+      availableBalanceSafe,
+      availableBalanceUnSafe
+    },
     onClick
   } = props;
   return (
@@ -26,12 +33,11 @@ export default function BRC20BalanceCard(props: BRC20BalanceCardProps) {
         backgroundColor: '#141414',
         borderColor: 'rgba(255,255,255,0.1)',
         borderWidth: 1,
-        width: 150,
-        height: 120,
-        minWidth: 150,
         minHeight: 120
       }}
-      onClick={onClick}>
+      fullX
+      onClick={onClick}
+    >
       <Column full>
         <Row justifyBetween itemsCenter>
           <Text text={ticker} color="gold" />
@@ -39,7 +45,8 @@ export default function BRC20BalanceCard(props: BRC20BalanceCardProps) {
             title="The transferable amount is the balance that has been inscribed into transfer inscriptions but has not yet been sent."
             overlayStyle={{
               fontSize: fontSizes.xs
-            }}>
+            }}
+          >
             <InfoCircleOutlined
               style={{
                 fontSize: fontSizes.xs,

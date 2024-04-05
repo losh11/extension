@@ -1,12 +1,10 @@
-import { useVersionInfo } from '@/ui/state/settings/hooks';
-
 import { Button } from '../Button';
 import { Column } from '../Column';
 import { Popover } from '../Popover';
 import { Row } from '../Row';
 import { Text } from '../Text';
 
-export const WarningPopver = ({ text, onClose }: { text: string; onClose: () => void }) => {
+export const WarningPopover = ({ text, onClose }: { text: string; onClose: () => void }) => {
   return (
     <Popover onClose={onClose}>
       <Column justifyCenter itemsCenter>

@@ -17,6 +17,7 @@ import i18n from '@/background/service/i18n';
 import { DisplayedKeyring, Keyring } from '@/background/service/keyring';
 import {
   ADDRESS_TYPES,
+  AddressFlagType,
   BRAND_ALIAN_TYPE_TEXT,
   CHAINS_ENUM,
   COIN_NAME,
@@ -27,7 +28,7 @@ import {
   OPENAPI_URL_MAINNET,
   OPENAPI_URL_TESTNET
 } from '@/shared/constant';
-import { AddressType, BitcoinBalance, NetworkType, ToSignInput, UTXO, WalletKeyring, Account } from '@/shared/types';
+import { Account, AddressType, BitcoinBalance, NetworkType, ToSignInput, UTXO, WalletKeyring } from '@/shared/types';
 import { createSendBTC, createSendMultiOrds, createSendOrd, createSplitOrdUtxoV2 } from '@unisat/ord-utils';
 
 import { ContactBookItem } from '../service/contactBook';
@@ -240,7 +241,7 @@ export class WalletController extends BaseController {
   };
 
   getPreMnemonics = () => keyringService.getPreMnemonics();
-  generatePreMnemonic = (data: any) => keyringService.generatePreMnemonic(data);
+  generatePreMnemonic = () => keyringService.generatePreMnemonic();
   removePreMnemonics = () => keyringService.removePreMnemonics();
   createKeyringWithMnemonics = async (
     mnemonic: string,
@@ -325,7 +326,8 @@ export class WalletController extends BaseController {
   changeKeyring = (keyring: WalletKeyring, accountIndex = 0) => {
     preferenceService.setCurrentKeyringIndex(keyring.index);
     preferenceService.setCurrentAccount(keyring.accounts[accountIndex]);
-    openapiService.setClientAddress(keyring.accounts[accountIndex].address);
+    const flag = preferenceService.getAddressFlag(keyring.accounts[accountIndex].address);
+    openapiService.setClientAddress(keyring.accounts[accountIndex].address, flag);
   };
 
   getAllAddresses = (keyring: WalletKeyring, index: number) => {
@@ -611,8 +613,6 @@ export class WalletController extends BaseController {
 
     const psbtNetwork = toPsbtNetwork(networkType);
 
-    console.log(psbtNetwork)
-
     const psbt = await createSendBTC({
       utxos: utxos.map((v) => {
         return {
@@ -829,6 +829,7 @@ export class WalletController extends BaseController {
       const address = publicKeyToAddress(pubkey, addressType, networkType);
       const accountKey = key + '#' + j;
       const defaultName = this.getAlianName(pubkey) || this._generateAlianName(type, j + 1);
+      const flag = preferenceService.getAddressFlag(address);
       const alianName = preferenceService.getAccountAlianName(accountKey, defaultName);
       accounts.push({
         type,
@@ -836,6 +837,7 @@ export class WalletController extends BaseController {
         address,
         alianName,
         index: j,
+        flag,
         key: accountKey
       });
     }
@@ -844,6 +846,7 @@ export class WalletController extends BaseController {
       key,
       initName ? `${KEYRING_TYPES[type].alianName} #${index + 1}` : ''
     );
+
     const keyring: WalletKeyring = {
       index,
       key,
@@ -918,7 +921,8 @@ export class WalletController extends BaseController {
       currentAccount = currentKeyring.accounts[0];
     }
     if (currentAccount) {
-      openapiService.setClientAddress(currentAccount.address);
+      currentAccount.flag = preferenceService.getAddressFlag(currentAccount.address);
+      openapiService.setClientAddress(currentAccount.address, currentAccount.flag);
     }
     return currentAccount;
   };
@@ -956,6 +960,14 @@ export class WalletController extends BaseController {
   getAppSummary = async () => {
     const data = await openapiService.getAppSummary();
     return data;
+  };
+
+  readTab = async () => {
+    return preferenceService.setReadTabTime(Date.now());
+  };
+
+  readApp = async (appid: number) => {
+    return preferenceService.setReadAppTime(appid, Date.now());
   };
 
   getAddressUtxo = async (address: string) => {
@@ -1042,13 +1054,24 @@ export class WalletController extends BaseController {
     return account;
   };
 
+  addAddressFlag = (account: Account, flag: AddressFlagType) => {
+    account.flag = preferenceService.addAddressFlag(account.address, flag);
+    openapiService.setClientAddress(account.address, account.flag);
+    return account;
+  };
+  removeAddressFlag = (account: Account, flag: AddressFlagType) => {
+    account.flag = preferenceService.removeAddressFlag(account.address, flag);
+    openapiService.setClientAddress(account.address, account.flag);
+    return account;
+  };
+
   getFeeSummary = async () => {
     const result = await openapiService.getFeeSummary();
     return result;
   };
 
-  inscribeBRC20Transfer = (address: string, tick: string, amount: string, feeRate: number) => {
-    return openapiService.inscribeBRC20Transfer(address, tick, amount, feeRate);
+  inscribeBRC20Transfer = (address: string, tick: string, amount: string, feeRate: number, outputValue: number) => {
+    return openapiService.inscribeBRC20Transfer(address, tick, amount, feeRate, outputValue);
   };
 
   getInscribeResult = (orderId: string) => {
@@ -1175,6 +1198,16 @@ export class WalletController extends BaseController {
 
   checkWebsite = (website: string) => {
     return openapiService.checkWebsite(website);
+  };
+  getShowSafeNotice = () => {
+    return preferenceService.getShowSafeNotice();
+  };
+  setShowSafeNotice = (show: boolean) => {
+    return preferenceService.setShowSafeNotice(show);
+  };
+
+  getVersionDetail = (version: string) => {
+    return openapiService.getVersionDetail(version);
   };
 }
 

@@ -24,13 +24,14 @@ export default function TxSuccessScreen() {
           </Row>
 
           <Text preset="title" text="Payment Sent" textCenter />
-          <Text preset="sub" text="Your transaction has been succesfully sent" color="textDim" textCenter />
+          <Text preset="sub" text="Your transaction has been successfully sent" color="textDim" textCenter />
 
           <Row
             justifyCenter
             onClick={() => {
               window.open(`${blockstreamUrl}/tx/${txid}`);
-            }}>
+            }}
+          >
             <Icon icon="eye" color="textDim" />
             <Text preset="regular-bold" text="View on Block Explorer" color="textDim" />
           </Row>

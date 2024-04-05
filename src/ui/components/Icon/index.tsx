@@ -40,8 +40,12 @@ export const svgRegistry = {
   'circle-info': '/images/icons/circle-info.svg',
   bitcoin: './images/icons/bitcoin.svg',
   'circle-question': '/images/icons/circle-question.svg',
+  split: '/images/icons/scissors.svg',
   litecoin: './images/icons/litecoin.svg',
-  split: '/images/icons/scissors.svg'
+  ordinals: '/images/icons/ordinals.svg',
+  atomicals: '/images/icons/atomicals.svg',
+  info: '/images/icons/info.svg',
+  warning: '/images/icons/warning.svg'
 };
 
 const iconImgList: Array<IconTypes> = ['success', 'delete', 'btc', 'ltc'];
@@ -104,7 +108,8 @@ export function Icon(props: IconProps) {
           $containerStyleOverride,
           $imageStyleOverride || {},
           onClick ? { cursor: 'pointer' } : {}
-        )}>
+        )}
+      >
         {children}
       </div>
     );

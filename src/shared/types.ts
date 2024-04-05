@@ -18,6 +18,7 @@ export enum RestoreWalletType {
   UNISAT,
   SPARROW,
   XVERSE,
+  OW,
   OTHERS
 }
 
@@ -71,6 +72,29 @@ export interface Inscription {
   output: string;
   offset: number;
   contentBody: string;
+}
+
+export interface Atomical {
+  atomicalId: string;
+  atomicalNumber: number;
+  type: 'FT' | 'NFT';
+  ticker?: string;
+
+  // mint info
+  address: string;
+  outputValue: number;
+  preview: string;
+  content: string;
+  contentType: string;
+  contentLength: number;
+  timestamp: number;
+  genesisTransaction: string;
+  location: string;
+  output: string;
+  offset: number;
+  contentBody: string;
+  utxoHeight: number;
+  utxoConfirmation: number;
 }
 
 export interface InscriptionMintedItem {
@@ -132,6 +156,10 @@ export enum TxType {
   SEND_BITCOIN,
   SEND_INSCRIPTION
 }
+export interface SignPsbtOptions {
+  autoFinalized: boolean;
+  toSignInputs?: UserToSignInput[];
+}
 
 export interface ToSignInput {
   index: number;
@@ -158,6 +186,7 @@ export interface Account {
   index?: number;
   balance?: number;
   key: string;
+  flag: number;
 }
 
 export interface InscribeOrder {
@@ -177,6 +206,13 @@ export interface TokenBalance {
   transferableBalance: string;
   availableBalanceSafe: string;
   availableBalanceUnSafe: string;
+}
+
+export interface Arc20Balance {
+  ticker: string;
+  balance: number;
+  confirmedBalance: number;
+  unconfirmedBalance: number;
 }
 
 export interface TokenInfo {
@@ -246,4 +282,20 @@ export enum WebsiteState {
   CHECKING,
   SCAMMER,
   SAFE
+}
+export interface AddressSummary {
+  totalSatoshis: number;
+  btcSatoshis: number;
+  assetSatoshis: number;
+  inscriptionCount: number;
+  atomicalsCount: number;
+  brc20Count: number;
+  arc20Count: number;
+  loading?: boolean;
+}
+
+export interface VersionDetail {
+  version: string;
+  title: string;
+  changelogs: string[];
 }

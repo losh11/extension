@@ -162,6 +162,8 @@ export const ADDRESS_TYPES: {
   }
 ];
 
+export const OW_HD_PATH = "m/86'/0'/0'";
+
 export const RESTORE_WALLETS: { value: RestoreWalletType; name: string; addressTypes: AddressType[] }[] = [
   {
     value: RestoreWalletType.UNISAT,
@@ -200,7 +202,7 @@ export const RESTORE_WALLETS: { value: RestoreWalletType; name: string; addressT
 ];
 
 export const NETWORK_TYPES = [
-  { value: NetworkType.MAINNET, label: 'MAINNET', name: 'livenet', validNames: [0, 'livenet', 'mainnet'] },
+  { value: NetworkType.MAINNET, label: 'LIVENET', name: 'livenet', validNames: [0, 'livenet', 'mainnet'] },
   { value: NetworkType.TESTNET, label: 'TESTNET', name: 'testnet', validNames: ['testnet'] }
 ];
 
@@ -228,7 +230,6 @@ export const INTERNAL_REQUEST_SESSION = {
 };
 
 export const OPENAPI_URL_MAINNET = 'https://litescribe.io/api';
-// export const OPENAPI_URL_MAINNET = 'https://unisat.io/wallet-api-v4';
 export const OPENAPI_URL_TESTNET = 'https://testnet.litescribe.io/api';
 
 export const EVENTS = {
@@ -262,6 +263,9 @@ export const TO_LOCALE_STRING_CONFIG = {
   minimumFractionDigits: 8
 };
 
+export const SUPPORTED_DOMAINS = ['sats', 'unisat', 'x', 'btc'];
+export const SAFE_DOMAIN_CONFIRMATION = 3;
+
 export const SATS_DOMAIN = '.lits';
 export const UNISAT_DOMAIN = '.unilit';
 export const LTC_DOMAIN = '.ltc';
@@ -274,3 +278,7 @@ export const TWITTER_URL = 'https://twitter.com/litescribe_io';
 export const CHANNEL = process.env.channel!;
 export const VERSION = process.env.release!;
 export const MANIFEST_VERSION = process.env.manifest!;
+
+export enum AddressFlagType {
+  Is_Enable_Atomicals = 0b1
+}

@@ -10,17 +10,6 @@ export default function ReceiveScreen() {
   const currentAccount = useCurrentAccount();
   const address = useAccountAddress();
 
-  const qrCodeOptions = {
-    renderAs: 'svg',
-    size: sizes.qrcode,
-    imageSettings: {
-      src: './images/logo/logo@128x.png', // Replace with the URL of your image
-      height: 45, // Adjust the size of the logo as needed
-      width: 45,
-      excavate: true // This removes the dark squares in the QR code where the logo is placed
-    }
-  };
-
   return (
     <Layout>
       <Header
@@ -34,13 +23,18 @@ export default function ReceiveScreen() {
           <Column
             justifyCenter
             rounded
-            style={{ backgroundColor: 'white', alignSelf: 'center', alignItems: 'center', padding: 10 }}>
+            style={{ backgroundColor: 'white', alignSelf: 'center', alignItems: 'center', padding: 10 }}
+          >
             <QRCode
               value={address || ''}
-              renderAs={'svg' as const} // Specify the type as "svg"
-              size={qrCodeOptions.size}
-              level={'M' as const}
-              imageSettings={qrCodeOptions.imageSettings}
+              renderAs="svg"
+              size={sizes.qrcode}
+              imageSettings={{
+                src: './images/logo/logo@128x.png',
+                height: 45,
+                width: 45,
+                excavate: true
+              }}
             />
           </Column>
 

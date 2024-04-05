@@ -10,6 +10,7 @@ export function Logo(props: { preset?: 'large' | 'small' }) {
     return (
       <Row justifyCenter itemsCenter>
         <Image src="./images/logo/wallet-logo.png" size={fontSizes.xxxl} />
+
         <Text text="LITESCRIBE" preset="title-bold" size="xxl" disableTranslate />
       </Row>
     );

@@ -37,7 +37,7 @@ export function AddressTypeCard(props: AddressTypeCardProps) {
           <Row justifyBetween bg="bg3" roundedBottom px="md" py="md">
             <Row justifyCenter>
               <Icon icon="btc" size={fontSizes.iconMiddle} />
-              <Text text={`${assets.total_btc} BTC`} color="blues" />
+              <Text text={`${assets.total_btc} LTC`} color="blues" />
             </Row>
 
             <Row>
@@ -86,7 +86,7 @@ export function AddressTypeCard2(props: AddressTypeCardProp2) {
             {v.satoshis > 0 && (
               <Row justifyCenter gap="zero" itemsCenter>
                 <Icon icon="btc" size={fontSizes.iconMiddle} />
-                <Text text={`${satoshisToBTC(v.satoshis)} BTC`} color="yellow" size="xxxs" />
+                <Text text={`${satoshisToBTC(v.satoshis)} LTC`} color="yellow" size="xxxs" />
               </Row>
             )}
           </Row>

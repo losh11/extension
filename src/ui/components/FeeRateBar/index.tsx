@@ -82,7 +82,8 @@ export function FeeRateBar({ onChange }: { onChange: (val: number) => void }) {
                   cursor: 'pointer'
                 } as CSSProperties,
                 selected ? { backgroundColor: colors.primary } : {}
-              )}>
+              )}
+            >
               <Text text={v.title} textCenter style={{ color: selected ? colors.black : colors.white }} />
               {v.title !== 'Custom' && (
                 <Text
@@ -109,8 +110,8 @@ export function FeeRateBar({ onChange }: { onChange: (val: number) => void }) {
           preset="amount"
           placeholder={'lit/vB'}
           value={feeRateInputVal}
-          onChange={async (e) => {
-            adjustFeeRateInput(e.target.value);
+          onAmountInputChange={(amount) => {
+            adjustFeeRateInput(amount);
           }}
           // onBlur={() => {
           //   const val = parseInt(feeRateInputVal) + '';

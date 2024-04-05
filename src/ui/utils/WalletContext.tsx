@@ -1,11 +1,12 @@
-import * as bitcoin from 'bitcoinjs-lib';
 import { createContext, ReactNode, useContext } from 'react';
 
 import { AccountAsset } from '@/background/controller/wallet';
 import { ContactBookItem, ContactBookStore } from '@/background/service/contactBook';
 import { ToSignInput } from '@/background/service/keyring';
 import { ConnectedSite } from '@/background/service/permission';
+import { AddressFlagType } from '@/shared/constant';
 import {
+  AddressSummary,
   BitcoinBalance,
   TxHistoryItem,
   Inscription,
@@ -22,10 +23,12 @@ import {
   TokenBalance,
   TokenTransfer,
   AddressTokenSummary,
+  SignPsbtOptions,
   DecodedPsbt,
   WalletConfig,
   UTXO_Detail
 } from '@/shared/types';
+import { bitcoin } from '@unisat/wallet-sdk/lib/bitcoin-core';
 
 export interface WalletController {
   openapi: {
@@ -88,7 +91,7 @@ export interface WalletController {
   }>;
   createKeyringWithPrivateKey(data: string, addressType: AddressType, alianName?: string): Promise<Account[]>;
   getPreMnemonics(): Promise<any>;
-  generatePreMnemonic(data: any): Promise<string>;
+  generatePreMnemonic(): Promise<string>;
   removePreMnemonics(): void;
   createKeyringWithMnemonics(
     mnemonic: string,
@@ -210,6 +213,17 @@ export interface WalletController {
   getInscriptionUtxoDetail(inscriptionId: string): Promise<UTXO_Detail>;
 
   checkWebsite(website: string): Promise<{ isScammer: boolean }>;
+  readTab(tabName: string): Promise<void>;
+  readApp(appid: number): Promise<void>;
+  formatOptionsToSignInputs(psbtHex: string, options: SignPsbtOptions): Promise<ToSignInput[]>;
+  getAddressSummary(address: string): Promise<AddressSummary>;
+
+  getShowSafeNotice(): Promise<boolean>;
+  setShowSafeNotice(show: boolean): Promise<void>;
+
+  // address flag
+  addAddressFlag(account: Account, flag: AddressFlagType): Promise<Account>;
+  removeAddressFlag(account: Account, flag: AddressFlagType): Promise<Account>;
 }
 
 const WalletContext = createContext<{
@@ -228,4 +242,4 @@ const useWallet = () => {
   return wallet;
 };
 
-export { WalletProvider, useWallet };
+export { useWallet, WalletProvider };

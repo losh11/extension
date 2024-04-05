@@ -1,22 +1,25 @@
-import { Tooltip } from 'antd';
-import { useEffect, useMemo, useState } from 'react';
+import { Tabs, Tooltip } from 'antd';
+import { CSSProperties, useEffect, useMemo, useState } from 'react';
 
-import { KEYRING_TYPE } from '@/shared/constant';
+import { AddressFlagType, KEYRING_TYPE } from '@/shared/constant';
 import { TokenBalance, NetworkType, Inscription } from '@/shared/types';
+import { checkAddressFlag } from '@/shared/utils';
 import { Card, Column, Content, Footer, Header, Icon, Layout, Row, Text } from '@/ui/components';
 import AccountSelect from '@/ui/components/AccountSelect';
 import { useTools } from '@/ui/components/ActionComponent';
 import { AddressBar } from '@/ui/components/AddressBar';
+import AtomicalsFeatureButton from '@/ui/components/AtomicalsFeatureButton';
 import BRC20BalanceCard from '@/ui/components/BRC20BalanceCard';
 import { Button } from '@/ui/components/Button';
 import { Empty } from '@/ui/components/Empty';
 import InscriptionPreview from '@/ui/components/InscriptionPreview';
 import { NavTabBar } from '@/ui/components/NavTabBar';
+import { NoticePopover } from '@/ui/components/NoticePopover';
 import { Pagination } from '@/ui/components/Pagination';
 import { TabBar } from '@/ui/components/TabBar';
-import { UpgradePopver } from '@/ui/components/UpgradePopver';
+import { UpgradePopover } from '@/ui/components/UpgradePopover';
 import { getCurrentTab } from '@/ui/features/browser/tabs';
-import { useAccountBalance, useCurrentAccount } from '@/ui/state/accounts/hooks';
+import { useAccountBalance, useAddressSummary, useCurrentAccount } from '@/ui/state/accounts/hooks';
 import { useAppDispatch } from '@/ui/state/hooks';
 import { useCurrentKeyring } from '@/ui/state/keyrings/hooks';
 import {
@@ -26,13 +29,18 @@ import {
   useVersionInfo,
   useWalletConfig
 } from '@/ui/state/settings/hooks';
-import { useWalletTabScreenState } from '@/ui/state/ui/hooks';
-import { WalletTabScreenTabKey, uiActions } from '@/ui/state/ui/reducer';
+import { useAssetTabKey, useAtomicalsAssetTabKey, useOrdinalsAssetTabKey } from '@/ui/state/ui/hooks';
+import { AssetTabKey, AtomicalsAssetTabKey, OrdinalsAssetTabKey, uiActions } from '@/ui/state/ui/reducer';
 import { fontSizes } from '@/ui/theme/font';
 import { useWallet } from '@/ui/utils';
 import { LoadingOutlined } from '@ant-design/icons';
 
 import { useNavigate } from '../MainRoute';
+
+const $noBreakStyle: CSSProperties = {
+  whiteSpace: 'nowrap',
+  wordBreak: 'keep-all'
+};
 
 export default function WalletTabScreen() {
   const navigate = useNavigate();
@@ -55,15 +63,20 @@ export default function WalletTabScreen() {
   const [connected, setConnected] = useState(false);
 
   const dispatch = useAppDispatch();
-  const { tabKey } = useWalletTabScreenState();
+  const assetTabKey = useAssetTabKey();
 
   const skipVersion = useSkipVersionCallback();
 
   const walletConfig = useWalletConfig();
   const versionInfo = useVersionInfo();
 
+  const [showSafeNotice, setShowSafeNotice] = useState(false);
+
   useEffect(() => {
     const run = async () => {
+      const show = await wallet.getShowSafeNotice();
+      setShowSafeNotice(show);
+
       const activeTab = await getCurrentTab();
       if (!activeTab) return;
       const site = await wallet.getCurrentConnectedSite(activeTab.id);
@@ -76,15 +89,19 @@ export default function WalletTabScreen() {
 
   const tabItems = [
     {
-      key: WalletTabScreenTabKey.ALL,
-      label: 'ALL',
-      children: <InscriptionList />
+      key: AssetTabKey.ORDINALS,
+      label: 'Ordinals',
+      children: <OrdinalsTab />
     },
-    {
-      key: WalletTabScreenTabKey.BRC20,
-      label: 'LTC-20',
-      children: <BRC20List />
-    }
+    // {
+    //   key: AssetTabKey.ATOMICALS,
+    //   label: 'Atomicals',
+    //   children: checkAddressFlag(currentAccount.flag, AddressFlagType.Is_Enable_Atomicals) ? (
+    //     <AtomicalsTab />
+    //   ) : (
+    //     <AtomicalsFeatureButton />
+    //   )
+    // }
   ];
 
   const blockstreamUrl = useBlockstreamUrl();
@@ -99,7 +116,8 @@ export default function WalletTabScreen() {
                 itemsCenter
                 onClick={() => {
                   navigate('ConnectedSitesScreen');
-                }}>
+                }}
+              >
                 <Text text="·" color="green" size="xxl" />
                 <Text text="Dapp Connected" size="xxs" />
               </Row>
@@ -111,7 +129,8 @@ export default function WalletTabScreen() {
             preset="style2"
             onClick={() => {
               navigate('SwitchKeyringScreen');
-            }}>
+            }}
+          >
             <Text text={currentKeyring.alianName} size="xxs" />
           </Card>
         }
@@ -125,27 +144,45 @@ export default function WalletTabScreen() {
           {walletConfig.statusMessage && <Text text={walletConfig.statusMessage} color="danger" textCenter />}
 
           <Tooltip
+            placement={'bottom'}
             title={
-              <span>
+              <>
                 <Row justifyBetween>
-                  <span>{'LTC Balance'}</span>
-                  <span>{` ${accountBalance.btc_amount} LTC`}</span>
+                  <span style={$noBreakStyle}>{'Confirmed LTC'}</span>
+                  <span style={$noBreakStyle}>{` ${accountBalance.confirm_btc_amount} LTC`}</span>
                 </Row>
                 <Row justifyBetween>
-                  <span>{'Inscription Balance'}</span>
-                  <span>{` ${accountBalance.inscription_amount} LTC`}</span>
+                  <span style={$noBreakStyle}>{'Unconfirmed LTC'}</span>
+                  <span style={$noBreakStyle}>{` ${accountBalance.pending_btc_amount} LTC`}</span>
                 </Row>
-              </span>
+                <Row justifyBetween>
+                  <span style={$noBreakStyle}>{'LTC in Inscriptions'}</span>
+                  <span style={$noBreakStyle}>{` ${accountBalance.inscription_amount} LTC`}</span>
+                </Row>
+              </>
             }
             overlayStyle={{
               fontSize: fontSizes.xs
-            }}>
+            }}
+          >
             <div>
               <Text text={balanceValue + '  LTC'} preset="title-bold" textCenter size="xxxl" />
             </div>
           </Tooltip>
 
-          <AddressBar />
+          <Row itemsCenter justifyCenter>
+            <AddressBar />
+            <Row
+              style={{ marginLeft: 8 }}
+              itemsCenter
+              onClick={() => {
+                window.open(`${blockstreamUrl}/address/${currentAccount.address}`);
+              }}
+            >
+              <Text text={'View History'} size="xs" />
+              <Icon icon="link" size={fontSizes.xs} />
+            </Row>
+          </Row>
 
           <Row justifyBetween>
             <Button
@@ -180,29 +217,28 @@ export default function WalletTabScreen() {
             )}
           </Row>
 
-          <Row justifyBetween>
-            <TabBar
-              defaultActiveKey={tabKey}
-              activeKey={tabKey}
-              items={tabItems}
-              onTabClick={(key) => {
-                dispatch(uiActions.updateWalletTabScreen({ tabKey: key }));
-              }}
-            />
-            <Row
-              itemsCenter
-              onClick={() => {
-                window.open(`${blockstreamUrl}/address/${currentAccount.address}`);
-              }}>
-              <Text text={'View History'} size="xs" />
-              <Icon icon="link" size={fontSizes.xs} />
-            </Row>
-          </Row>
+          <Tabs
+            size={'small'}
+            defaultActiveKey={assetTabKey as unknown as string}
+            activeKey={assetTabKey as unknown as string}
+            items={tabItems as unknown as any[]}
+            onTabClick={(key) => {
+              dispatch(uiActions.updateAssetTabScreen({ assetTabKey: key as unknown as AssetTabKey }));
+            }}
+          />
 
-          {tabItems[tabKey].children}
+          {/*{tabItems[assetTabKey].children}*/}
         </Column>
+        {showSafeNotice && (
+          <NoticePopover
+            onClose={() => {
+              wallet.setShowSafeNotice(false);
+              setShowSafeNotice(false);
+            }}
+          />
+        )}
         {!versionInfo.skipped && (
-          <UpgradePopver
+          <UpgradePopover
             onClose={() => {
               skipVersion(versionInfo.newVersion);
             }}
@@ -213,6 +249,100 @@ export default function WalletTabScreen() {
         <NavTabBar tab="home" />
       </Footer>
     </Layout>
+  );
+}
+
+function OrdinalsTab() {
+  const addressSummary = useAddressSummary();
+  const tabItems = [
+    {
+      key: OrdinalsAssetTabKey.ALL,
+      label: `ALL (${addressSummary.inscriptionCount})`,
+      children: <InscriptionList />
+    },
+    {
+      key: OrdinalsAssetTabKey.BRC20,
+      label: `LTC-20 (${addressSummary.brc20Count})`,
+      children: <BRC20List />
+    }
+  ];
+
+  const tabKey = useOrdinalsAssetTabKey();
+  const dispatch = useAppDispatch();
+  return (
+    <Column>
+      <Row justifyBetween>
+        <TabBar
+          defaultActiveKey={tabKey}
+          activeKey={tabKey}
+          items={tabItems}
+          preset="style2"
+          onTabClick={(key) => {
+            dispatch(uiActions.updateAssetTabScreen({ ordinalsAssetTabKey: key }));
+          }}
+        />
+      </Row>
+
+      {tabItems[tabKey].children}
+    </Column>
+  );
+}
+
+function AtomicalsTab() {
+  const addressSummary = useAddressSummary();
+  const tabItems = [
+    {
+      key: AtomicalsAssetTabKey.ALL,
+      label: `ALL (${addressSummary.atomicalsCount})`,
+      children: (
+        <Column style={{ minHeight: 150 }} itemsCenter justifyCenter>
+          <Empty text="Not supported yet" />
+        </Column>
+      ),
+      hidden: true
+    },
+    {
+      key: AtomicalsAssetTabKey.ARC20,
+      label: `ARC-20 (${addressSummary.arc20Count})`,
+      children: (
+        <Column style={{ minHeight: 150 }} itemsCenter justifyCenter>
+          <Empty text="Not supported yet" />
+        </Column>
+      )
+    },
+    {
+      key: AtomicalsAssetTabKey.OTHERS,
+      label: 'Others',
+      children: (
+        <Column style={{ minHeight: 150 }} itemsCenter justifyCenter>
+          <Empty text="Not supported yet" />
+        </Column>
+      )
+    }
+  ];
+
+  const tabKey = useAtomicalsAssetTabKey();
+  const dispatch = useAppDispatch();
+
+  return (
+    <Column>
+      {!addressSummary.loading && addressSummary.atomicalsCount === 0 && addressSummary.arc20Count === 0 && (
+        <AtomicalsFeatureButton />
+      )}
+      <Row justifyBetween>
+        <TabBar
+          defaultActiveKey={tabKey}
+          activeKey={tabKey}
+          items={tabItems}
+          preset="style2"
+          onTabClick={(key) => {
+            dispatch(uiActions.updateAssetTabScreen({ atomicalsAssetTabKey: key }));
+          }}
+        />
+      </Row>
+
+      {tabItems[tabKey].children}
+    </Column>
   );
 }
 

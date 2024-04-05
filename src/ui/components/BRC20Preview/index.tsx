@@ -27,10 +27,21 @@ export default function BRC20Preview({
   if (!balance) {
     balance = 'deploy';
   }
+  let balanceSize = 'xxl';
+  if (balance.length < 7) {
+    balanceSize = 'xxl';
+  } else if (balance.length < 14) {
+    balanceSize = 'xl';
+  } else if (balance.length < 21) {
+    balanceSize = 'md';
+  } else {
+    balanceSize = 'sm';
+  }
   return (
     <Column
       style={{ backgroundColor: colors.bg4, width: 100, height: 130, minWidth: 100, minHeight: 130, borderRadius: 5 }}
-      onClick={onClick}>
+      onClick={onClick}
+    >
       <Column
         style={{
           padding: 8,
@@ -38,12 +49,13 @@ export default function BRC20Preview({
           backgroundColor: type === 'TRANSFER' ? (selected ? 'green' : '#002514') : '#000',
           borderTopLeftRadius: 5,
           borderTopRightRadius: 5
-        }}>
+        }}
+      >
         <Row>
           <Text text={tick} color="white_muted" size="lg" />
         </Row>
 
-        <Text text={balance} size="xxl" textCenter />
+        <Text text={balance} size={balanceSize as any} textCenter wrap />
       </Column>
 
       <Column px="sm" pb="sm" gap="sm">
