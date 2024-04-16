@@ -29,6 +29,7 @@ import DiscoverTabScreen from './Main/DiscoverTabScreen';
 import SettingsTabScreen from './Main/SettingsTabScreen';
 import WalletTabScreen from './Main/WalletTabScreen';
 import WelcomeScreen from './Main/WelcomeScreen';
+import SignOrdinalsTransactionScreen from './Ordinals/SignOrdinalsTransactionScreen';
 import AddressTypeScreen from './Settings/AddressTypeScreen';
 import ChangePasswordScreen from './Settings/ChangePasswordScreen';
 import EditAccountNameScreen from './Settings/EditAccountNameScreen';
@@ -211,6 +212,10 @@ const routes = {
   SplitTxCreateScreen: {
     path: '/wallet/split-tx/create',
     element: <SplitTxCreateScreen />
+  },
+  SignOrdinalsTransactionScreen: {
+    path: '/wallet/ordinals/signTx',
+    element: <SignOrdinalsTransactionScreen />
   }
 };
 

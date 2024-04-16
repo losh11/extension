@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { Account, AddressType } from '@/shared/types';
+import { Account, AddressType, Inscription } from '@/shared/types';
 import { useWallet } from '@/ui/utils';
 
 import { AppState } from '..';
@@ -184,6 +184,31 @@ export function useFetchHistoryCallback() {
   }, [dispatch, wallet, address]);
 }
 
+export function useFetchAddressSummaryCallback() {
+  const dispatch = useAppDispatch();
+  const wallet = useWallet();
+  const currentAccount = useCurrentAccount();
+  const addressSummary = useAddressSummary();
+  const balance = useAccountBalance();
+  return useCallback(async () => {
+    if (!currentAccount.address) return;
+    const inscription_list = await wallet.getAddressInscriptions(currentAccount.address, 0, 0);
+    const brc20_list = await wallet.getBRC20List(currentAccount.address, 0, 0);
+    dispatch(
+      accountActions.setAddressSummary({
+        totalSatoshis: parseFloat(balance.amount) * 100000000,
+        btcSatoshis: parseFloat(balance.btc_amount) * 100000000,
+        assetSatoshis: parseFloat(balance.inscription_amount) * 100000000,
+        inscriptionCount: inscription_list.total,
+        atomicalsCount: 0,
+        brc20Count: brc20_list.total,
+        arc20Count: 0,
+        loading: null
+      })
+    );
+  }, [dispatch, wallet, currentAccount, addressSummary]);
+}
+
 export function useFetchBalanceCallback() {
   const dispatch = useAppDispatch();
   const wallet = useWallet();
@@ -192,22 +217,28 @@ export function useFetchBalanceCallback() {
   return useCallback(async () => {
     if (!currentAccount.address) return;
     const cachedBalance = await wallet.getAddressCacheBalance(currentAccount.address);
+    const { total } = await wallet.getAllInscriptionList(currentAccount.address, 0, 0);
+    const { list } = await wallet.getAddressInscriptions(currentAccount.address, 0, total);
+    let inscription_amount = 0;
+    list.map((item: Inscription) => {
+      inscription_amount += item.outputValue / 100000000;
+    });
     const _accountBalance = await wallet.getAddressBalance(currentAccount.address);
     dispatch(
       accountActions.setBalance({
         address: currentAccount.address,
         amount: _accountBalance.amount,
         btc_amount: _accountBalance.btc_amount,
-        inscription_amount: _accountBalance.inscription_amount,
+        inscription_amount: inscription_amount.toString(),
         confirm_btc_amount: _accountBalance.confirm_btc_amount,
         pending_btc_amount: _accountBalance.pending_btc_amount
       })
     );
+
     if (cachedBalance.amount !== _accountBalance.amount) {
       wallet.expireUICachedData(currentAccount.address);
       dispatch(accountActions.expireHistory());
     }
-
   }, [dispatch, wallet, currentAccount, balance]);
 }
 

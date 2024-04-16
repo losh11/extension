@@ -29,7 +29,13 @@ import {
   OPENAPI_URL_TESTNET
 } from '@/shared/constant';
 import { Account, AddressType, BitcoinBalance, NetworkType, ToSignInput, UTXO, WalletKeyring } from '@/shared/types';
-import { createSendBTC, createSendMultiOrds, createSendOrd, createSplitOrdUtxoV2 } from '@unisat/ord-utils';
+import {
+  createSendBTC,
+  createSendMultiOrds,
+  createSendOrd,
+  createSplitOrdUtxo,
+  createSplitOrdUtxoV2
+} from '@unisat/ord-utils';
 
 import { ContactBookItem } from '../service/contactBook';
 import { OpenApiService } from '../service/openapi';
@@ -764,20 +770,41 @@ export class WalletController extends BaseController {
     feeRate: number;
     outputValue: number;
   }) => {
+    console.log(inscriptionId, feeRate, outputValue);
     const account = await preferenceService.getCurrentAccount();
     if (!account) throw new Error('no current account');
 
     const networkType = preferenceService.getNetworkType();
     const psbtNetwork = toPsbtNetwork(networkType);
 
+    console.log('1', psbtNetwork);
+
     const utxo = await openapiService.getInscriptionUtxo(inscriptionId);
     if (!utxo) {
       throw new Error('UTXO not found.');
     }
 
-    const btc_utxos = await openapiService.getAddressUtxo(account.address);
-    const utxos = [utxo].concat(btc_utxos);
+    // const btc_utxos = await openapiService.getAddressUtxo(account.address);
+    // const utxo1 = {
+    //   addressType: 0,
+    //   inscriptions: utxo.inscriptions[1],
+    //   outputIndex: 0,
+    //   satoshis: utxo.satoshis,
+    //   scriptPk: utxo.scriptPk
+    // };
+    // const utxos = utxo.inscriptions.map((v) => {
+    //   return {
+    //     addressType: utxo.addressType,
+    //     inscriptions: [v],
+    //     outputIndex: 0,
+    //     satoshis: utxo.satoshis,
+    //     scriptPk: utxo.scriptPk,
+    //     txId: utxo.txId
+    //   };
+    // });
 
+    const utxos = [utxo];
+    console.log('2', utxos);
     const { psbt, splitedCount } = await createSplitOrdUtxoV2({
       utxos: utxos.map((v) => {
         return {
@@ -800,7 +827,9 @@ export class WalletController extends BaseController {
     });
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
+    console.log(psbt, splitedCount);
     psbt.__CACHE.__UNSAFE_SIGN_NONSEGWIT = false;
+
     return {
       psbtHex: psbt.toHex(),
       splitedCount
@@ -808,6 +837,7 @@ export class WalletController extends BaseController {
   };
 
   pushTx = async (rawtx: string) => {
+    console.log(rawtx, 'wallet');
     const txid = await this.openapi.pushTx(rawtx);
     return txid;
   };

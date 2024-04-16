@@ -198,11 +198,16 @@ export function useCreateSplitTxCallback() {
   const utxos = useUtxos();
   return useCallback(
     async (inscriptionId: string, feeRate: number, outputValue: number) => {
+      console.log(inscriptionId, feeRate, outputValue);
       const { psbtHex, splitedCount } = await wallet.splitInscription({
         inscriptionId,
         feeRate,
         outputValue
       });
+
+      console.log(psbtHex);
+
+      console.log(splitedCount);
       const psbt = bitcoin.Psbt.fromHex(psbtHex);
       const rawtx = psbt.extractTransaction().toHex();
       dispatch(
@@ -222,6 +227,8 @@ export function useCreateSplitTxCallback() {
           address: fromAddress
         }
       };
+
+      console.log(rawTxInfo, splitedCount);
       return { rawTxInfo, splitedCount };
     },
     [dispatch, wallet, fromAddress, utxos]
@@ -239,9 +246,11 @@ export function usePushOrdinalsTxCallback() {
         txid: '',
         error: ''
       };
+      console.log(rawtx);
       try {
         tools.showLoading(true);
         const txid = await wallet.pushTx(rawtx);
+        console.log('txid', txid);
         await sleep(3); // Wait for transaction synchronization
         tools.showLoading(false);
         dispatch(transactionsActions.updateOrdinalsTx({ txid }));
@@ -261,7 +270,7 @@ export function usePushOrdinalsTxCallback() {
         ret.error = (e as Error).message;
         tools.showLoading(false);
       }
-
+      console.log(ret);
       return ret;
     },
     [dispatch, wallet]

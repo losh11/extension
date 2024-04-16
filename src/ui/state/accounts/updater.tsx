@@ -6,7 +6,13 @@ import { useWallet } from '@/ui/utils';
 
 import { useIsUnlocked } from '../global/hooks';
 import { useAppDispatch } from '../hooks';
-import { useAccountBalance, useCurrentAccount, useFetchBalanceCallback, useReloadAccounts } from './hooks';
+import {
+  useAccountBalance,
+  useCurrentAccount,
+  useFetchBalanceCallback,
+  useReloadAccounts,
+  useFetchAddressSummaryCallback
+} from './hooks';
 import { accountActions } from './reducer';
 
 export default function AccountUpdater() {
@@ -18,7 +24,8 @@ export default function AccountUpdater() {
   const selfRef = useRef({
     preAccountKey: '',
     loadingBalance: false,
-    loadingHistory: false
+    loadingHistory: false,
+    loadingAddressSummary: false
   });
   const self = selfRef.current;
 
@@ -40,6 +47,7 @@ export default function AccountUpdater() {
   }, [currentAccount && currentAccount.key, isUnlocked]);
 
   const fetchBalance = useFetchBalanceCallback();
+  const fetchAddressSummary = useFetchAddressSummaryCallback();
   useEffect(() => {
     if (self.loadingBalance) {
       return;
@@ -55,6 +63,22 @@ export default function AccountUpdater() {
       self.loadingBalance = false;
     });
   }, [fetchBalance, wallet, isUnlocked, self]);
+
+  useEffect(() => {
+    if (self.loadingAddressSummary) {
+      return;
+    }
+    if (!isUnlocked) {
+      return;
+    }
+    if (!balance.expired) {
+      return;
+    }
+    self.loadingAddressSummary = true;
+    fetchAddressSummary().finally(() => {
+      self.loadingAddressSummary = false;
+    });
+  }, [fetchAddressSummary, wallet, isUnlocked, self]);
 
   useEffect(() => {
     const accountChangeHandler = (account: Account) => {

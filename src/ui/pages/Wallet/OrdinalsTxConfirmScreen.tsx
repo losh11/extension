@@ -12,6 +12,7 @@ interface LocationState {
 
 export default function OrdinalsTxConfirmScreen() {
   const { rawTxInfo } = useLocationState<LocationState>();
+  console.log(rawTxInfo);
   const navigate = useNavigate();
   const pushOrdinalsTx = usePushOrdinalsTxCallback();
   return (
@@ -26,6 +27,7 @@ export default function OrdinalsTxConfirmScreen() {
         navigate('MainScreen');
       }}
       handleConfirm={() => {
+        console.log(rawTxInfo);
         pushOrdinalsTx(rawTxInfo.rawtx).then(({ success, txid, error }) => {
           if (success) {
             navigate('TxSuccessScreen', { txid });
