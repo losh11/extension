@@ -770,14 +770,11 @@ export class WalletController extends BaseController {
     feeRate: number;
     outputValue: number;
   }) => {
-    console.log(inscriptionId, feeRate, outputValue);
     const account = await preferenceService.getCurrentAccount();
     if (!account) throw new Error('no current account');
 
     const networkType = preferenceService.getNetworkType();
     const psbtNetwork = toPsbtNetwork(networkType);
-
-    console.log('1', psbtNetwork);
 
     const utxo = await openapiService.getInscriptionUtxo(inscriptionId);
     if (!utxo) {
@@ -804,7 +801,6 @@ export class WalletController extends BaseController {
     // });
 
     const utxos = [utxo];
-    console.log('2', utxos);
     const { psbt, splitedCount } = await createSplitOrdUtxoV2({
       utxos: utxos.map((v) => {
         return {
@@ -827,7 +823,6 @@ export class WalletController extends BaseController {
     });
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
-    console.log(psbt, splitedCount);
     psbt.__CACHE.__UNSAFE_SIGN_NONSEGWIT = false;
 
     return {
@@ -837,7 +832,6 @@ export class WalletController extends BaseController {
   };
 
   pushTx = async (rawtx: string) => {
-    console.log(rawtx, 'wallet');
     const txid = await this.openapi.pushTx(rawtx);
     return txid;
   };

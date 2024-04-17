@@ -7,7 +7,7 @@ import { FeeRateBar } from '@/ui/components/FeeRateBar';
 import InscriptionPreview from '@/ui/components/InscriptionPreview';
 import { OutputValueBar } from '@/ui/components/OutputValueBar';
 import { useCreateSplitTxCallback, useOrdinalsTx } from '@/ui/state/transactions/hooks';
-import { useWallet, useLocationState } from '@/ui/utils';
+import { useWallet } from '@/ui/utils';
 
 import { useNavigate } from '../MainRoute';
 
@@ -16,10 +16,9 @@ export default function SplitTxCreateScreen() {
   const navigate = useNavigate();
 
   const { state } = useLocation();
-  // const { inscription } = state as {
-  //   inscription: Inscription;
-  // };
-  const { inscription } = useLocationState<{ inscription: Inscription }>();
+  const { inscription } = state as {
+    inscription: Inscription;
+  };
   const ordinalsTx = useOrdinalsTx();
 
   const [error, setError] = useState('');
@@ -37,9 +36,7 @@ export default function SplitTxCreateScreen() {
   const [splitedCount, setSplitedCount] = useState(0);
   const wallet = useWallet();
   useEffect(() => {
-    console.log(inscription.inscriptionId);
     wallet.getInscriptionUtxoDetail(inscription.inscriptionId).then((v) => {
-      console.log(v);
       setInscriptions(v.inscriptions);
     });
   }, []);
@@ -69,19 +66,14 @@ export default function SplitTxCreateScreen() {
       return;
     }
 
-    console.log(inscription);
-
     createSplitTx(inscription.inscriptionId, feeRate, outputValue)
       .then((data) => {
         setRawTxInfo(data.rawTxInfo);
-        console.log(rawTxInfo);
-        console.log(data.rawTxInfo);
         setSplitedCount(data.splitedCount);
         setDisabled(false);
         setError('');
       })
       .catch((e) => {
-        console.log(e);
         setError(e.message);
       });
   }, [feeRate, outputValue]);
