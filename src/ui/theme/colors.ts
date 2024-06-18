@@ -21,6 +21,10 @@ const palette = {
   blues: '#3160b0',
   blues_light: '#26A9FC',
 
+  yellow_dark: '#d5ac00',
+  yellow: 'rgb(253,224,71)',
+  yellow_light: '#fcd226',
+
   red_dark: '#c92b40',
   red: '#ED334B',
   red_light: '#f05266',
@@ -32,6 +36,10 @@ const palette = {
   blue_pastel_dark: '#3774A8',
   blue_pastel: '#4A98DB',
   blue_pastel_light: '#57B2FF',
+
+  orange_dark: '#d9691c',
+  orange: '#FF7B21',
+  orange_light: '#ff8f42',
 
   gold: '#5385bd'
 };
@@ -58,7 +66,9 @@ export const colors = Object.assign({}, palette, {
   bg4: '#35373b',
   bg5: '#212f40',
 
-  border: 'rgba(255,255,255,0.1)'
+  border: 'rgba(255,255,255,0.1)',
+
+  icon_blue: '#1872F6'
 });
 
 export type ColorTypes = keyof typeof colors;

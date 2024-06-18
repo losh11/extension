@@ -109,7 +109,8 @@ export default function InscriptionPreview({ data, onClick, preset }: Inscriptio
               title={`The UTXO containing this inscription has ${data.outputValue} lits`}
               overlayStyle={{
                 fontSize: fontSizes.xs
-              }}>
+              }}
+            >
               <div>
                 <Text
                   text={`${data.outputValue} lits`}

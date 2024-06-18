@@ -5,9 +5,12 @@ import { Column, Content, Header, Layout } from '@/ui/components';
 import { useTools } from '@/ui/components/ActionComponent';
 import { AddressTypeCard } from '@/ui/components/AddressTypeCard';
 import { useExtensionIsInTab } from '@/ui/features/browser/tabs';
-import { useCurrentAccount } from '@/ui/state/accounts/hooks';
+import { useCurrentAccount, useReloadAccounts } from '@/ui/state/accounts/hooks';
+import { useAppDispatch } from '@/ui/state/hooks';
 import { useCurrentKeyring } from '@/ui/state/keyrings/hooks';
 import { amountToSatoshis, useWallet } from '@/ui/utils';
+
+import { useNavigate } from '../MainRoute';
 
 export default function AddressTypeScreen() {
   const isInTab = useExtensionIsInTab();
@@ -16,6 +19,9 @@ export default function AddressTypeScreen() {
   const currentKeyring = useCurrentKeyring();
   const account = useCurrentAccount();
 
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const reloadAccounts = useReloadAccounts();
   const [addresses, setAddresses] = useState<string[]>([]);
   const [addressAssets, setAddressAssets] = useState<{
     [key: string]: { total_btc: string; satoshis: number; total_inscription: number };
@@ -75,7 +81,6 @@ export default function AddressTypeScreen() {
       );
     }
   }, [currentKeyring.type, addressAssets, addresses]);
-
   return (
     <Layout>
       <Header
@@ -93,16 +98,25 @@ export default function AddressTypeScreen() {
               satoshis: 0,
               total_inscription: 0
             };
+            let name = `${item.name} (${item.hdPath}/${account.index})`;
+            if (currentKeyring.type === KEYRING_TYPE.SimpleKeyring) {
+              name = `${item.name}`;
+            }
             return (
               <AddressTypeCard
                 key={index}
-                label={`${item.name} (${item.hdPath}/${account.index})`}
+                label={name}
                 address={address}
                 assets={assets}
                 checked={item.value == currentKeyring.addressType}
                 onClick={async () => {
+                  if (item.value == currentKeyring.addressType) {
+                    return;
+                  }
                   await wallet.changeAddressType(item.value);
-                  window.location.reload();
+                  reloadAccounts();
+                  navigate('MainScreen');
+                  tools.toastSuccess('Address type changed');
                 }}
               />
             );

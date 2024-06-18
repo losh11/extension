@@ -3,7 +3,8 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { COIN_DUST } from '@/shared/constant';
 import { Inscription, RawTxInfo } from '@/shared/types';
-import { Layout, Content, Button, Header, Icon, Text, Input, Column, Row } from '@/ui/components';
+import { Button, Column, Content, Header, Icon, Input, Layout, Row, Text } from '@/ui/components';
+import { useTools } from '@/ui/components/ActionComponent';
 import { FeeRateBar } from '@/ui/components/FeeRateBar';
 import { useNavigate } from '@/ui/pages/MainRoute';
 import { useAccountBalance } from '@/ui/state/accounts/hooks';
@@ -40,8 +41,12 @@ export default function TxCreateScreen() {
   const [autoAdjust, setAutoAdjust] = useState(false);
   const fetchUtxos = useFetchUtxosCallback();
 
+  const tools = useTools();
   useEffect(() => {
-    fetchUtxos();
+    tools.showLoading(true);
+    fetchUtxos().finally(() => {
+      tools.showLoading(false);
+    });
   }, []);
 
   const createBitcoinTx = useCreateBitcoinTxCallback();
@@ -156,6 +161,10 @@ export default function TxCreateScreen() {
               </Row>
             )}
           </Row>
+          <Row justifyBetween>
+            <Text text="Unconfirmed LTC" color="textDim" />
+            <Text text={`${accountBalance.pending_btc_amount} LTC`} size="sm" preset="bold" color="textDim" />
+          </Row>
           {showSafeBalance && (
             <Row justifyBetween>
               <Text text="Available (safe to send)" color="textDim" />
@@ -174,12 +183,12 @@ export default function TxCreateScreen() {
             preset="amount"
             placeholder={'Amount'}
             defaultValue={inputAmount}
-            value={inputAmount}
-            onChange={async (e) => {
+            // value={inputAmount}
+            onAmountInputChange={(amount) => {
               if (autoAdjust == true) {
                 setAutoAdjust(false);
               }
-              setInputAmount(e.target.value);
+              setInputAmount(amount);
             }}
           />
         </Column>

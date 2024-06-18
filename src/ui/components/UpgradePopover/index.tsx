@@ -6,13 +6,13 @@ import { Popover } from '../Popover';
 import { Row } from '../Row';
 import { Text } from '../Text';
 
-export const UpgradePopver = ({ onClose }: { onClose: () => void }) => {
+export const UpgradePopover = ({ onClose }: { onClose: () => void }) => {
   const versionInfo = useVersionInfo();
   return (
     <Popover onClose={onClose}>
       <Column justifyCenter itemsCenter>
         <Column mt="lg">
-          <Text text={`A new version (v${versionInfo.newVersion}) is available`} textCenter />
+          <Text preset="bold" text={`A new version (v${versionInfo.newVersion}) is available`} textCenter />
         </Column>
 
         <Row full mt="lg">
@@ -27,7 +27,7 @@ export const UpgradePopver = ({ onClose }: { onClose: () => void }) => {
           />
 
           <Button
-            text="Go to download"
+            text="Go to update"
             full
             preset="primary"
             onClick={(e) => {

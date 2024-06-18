@@ -108,9 +108,9 @@ export function FeeRateBar({ onChange }: { onChange: (val: number) => void }) {
         <Input
           preset="amount"
           placeholder={'lit/vB'}
-          value={feeRateInputVal}
-          onChange={async (e) => {
-            adjustFeeRateInput(e.target.value);
+          defaultValue={feeRateInputVal}
+          onAmountInputChange={(amount) => {
+            adjustFeeRateInput(amount);
           }}
           // onBlur={() => {
           //   const val = parseInt(feeRateInputVal) + '';
