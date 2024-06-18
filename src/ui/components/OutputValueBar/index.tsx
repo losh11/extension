@@ -93,8 +93,7 @@ export function OutputValueBar({
                   cursor: 'pointer'
                 } as CSSProperties,
                 selected ? { backgroundColor: colors.primary } : {}
-              )}
-            >
+              )}>
               <Text text={v.title} color={selected ? 'black' : 'white'} textCenter />
               {v.value && <Text text={`${v.value} sats`} color={selected ? 'black' : 'white'} textCenter size="xs" />}
             </div>
@@ -106,7 +105,7 @@ export function OutputValueBar({
           preset="amount"
           disableDecimal
           placeholder={'sats'}
-          value={inputVal}
+          defaultValue={inputVal}
           onAmountInputChange={(val) => {
             setInputVal(val);
           }}

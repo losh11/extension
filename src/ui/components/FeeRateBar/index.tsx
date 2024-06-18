@@ -82,8 +82,7 @@ export function FeeRateBar({ onChange }: { onChange: (val: number) => void }) {
                   cursor: 'pointer'
                 } as CSSProperties,
                 selected ? { backgroundColor: colors.primary } : {}
-              )}
-            >
+              )}>
               <Text text={v.title} textCenter style={{ color: selected ? colors.black : colors.white }} />
               {v.title !== 'Custom' && (
                 <Text
@@ -109,7 +108,7 @@ export function FeeRateBar({ onChange }: { onChange: (val: number) => void }) {
         <Input
           preset="amount"
           placeholder={'lit/vB'}
-          value={feeRateInputVal}
+          defaultValue={feeRateInputVal}
           onAmountInputChange={(amount) => {
             adjustFeeRateInput(amount);
           }}

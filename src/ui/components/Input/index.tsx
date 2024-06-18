@@ -1,5 +1,4 @@
 import { isNull } from 'lodash';
-import WAValidator from 'multicoin-address-validator';
 import React, { CSSProperties, useEffect, useState } from 'react';
 
 import { SATS_DOMAIN, UNISAT_DOMAIN, LTC_DOMAIN, LITE_DOMAIN } from '@/shared/constant';
@@ -7,6 +6,7 @@ import { Inscription } from '@/shared/types';
 import { colors } from '@/ui/theme/colors';
 import { spacing } from '@/ui/theme/spacing';
 import { useWallet } from '@/ui/utils';
+import { validate } from '@/ui/utils/AddressValidator';
 
 import { AccordingInscription } from '../AccordingInscription';
 import { useTools } from '../ActionComponent';
@@ -135,7 +135,7 @@ function AmountInput(props: InputProps) {
       <input
         placeholder={placeholder || 'Amount'}
         type={'text'}
-        value={inputValue}
+        defaultValue={inputValue}
         onChange={handleInputAmount}
         style={$style}
         disabled={disabled}
@@ -223,7 +223,7 @@ export const AddressInput = (props: InputProps) => {
           setFormatError(errMsg);
         });
     } else {
-      const isValid = WAValidator.validate(inputAddress, 'litecoin');
+      const isValid = validate(inputAddress, 'litecoin');
       if (!isValid) {
         setFormatError('Recipient address is invalid');
         return;

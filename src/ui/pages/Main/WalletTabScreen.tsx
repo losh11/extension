@@ -397,7 +397,7 @@ function InscriptionList() {
   return (
     <Column>
       <Row style={{ flexWrap: 'wrap' }} gap="lg">
-        {inscriptions.map((data, index) => (
+        {inscriptions?.map((data, index) => (
           <InscriptionPreview
             key={index}
             data={data}
@@ -471,7 +471,7 @@ function BRC20List() {
   return (
     <Column>
       <Row style={{ flexWrap: 'wrap' }} gap="sm">
-        {tokens.map((data, index) => (
+        {tokens?.map((data, index) => (
           <BRC20BalanceCard
             key={index}
             tokenBalance={data}

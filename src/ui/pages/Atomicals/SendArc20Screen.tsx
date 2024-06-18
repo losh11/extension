@@ -147,8 +147,7 @@ export default function SendArc20Screen() {
             <Row
               onClick={() => {
                 setInputAmount(arc20Balance.balance.toString());
-              }}
-            >
+              }}>
               <Text text="MAX" preset="sub" style={{ color: colors.white_muted }} />
               <Text text={`${arc20Balance.balance} ${arc20Balance.ticker}`} preset="bold" size="sm" />
             </Row>
@@ -157,7 +156,7 @@ export default function SendArc20Screen() {
             preset="amount"
             placeholder={'Amount'}
             defaultValue={inputAmount.toString()}
-            value={inputAmount.toString()}
+            // value={inputAmount.toString()}
             onAmountInputChange={(amount) => {
               setInputAmount(amount);
             }}
@@ -190,8 +189,7 @@ export default function SendArc20Screen() {
           text="Next"
           onClick={(e) => {
             navigate('TxConfirmScreen', { rawTxInfo });
-          }}
-        ></Button>
+          }}></Button>
       </Content>
     </Layout>
   );

@@ -17,7 +17,9 @@ const LITECOIN = {
   },
   pubKeyHash: 0x30,
   scriptHash: 0x32,
-  wif: 0xb0
+  wif: 0xb0,
+  ltub: 0x019da462,
+  ltpv: 0x019d9cfe
 };
 
 const LITECOIN_TESTNET = {
@@ -28,8 +30,10 @@ const LITECOIN_TESTNET = {
     private: 0x04358394
   },
   pubKeyHash: 0x6f,
-  scriptHash: 0xc4,
-  wif: 0xef
+  scriptHash: 0x3a,
+  wif: 0xef,
+  tpub: 0x0436f6e1,
+  tprv: 0x0436ef7d
 };
 
 export const validator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>

@@ -32,6 +32,7 @@ var options = {
   manifest: knownOptions.default.manifest
 };
 options = minimist(process.argv.slice(2), knownOptions);
+// console.log(options);
 if (!supported_envs.includes(options.env)) {
   console.error(`not supported env: [${options.env}]. It should be one of ${supported_envs.join(', ')}.`);
   exit(0);
@@ -82,7 +83,7 @@ function task_webpack(cb) {
   webpack(
     webpackConfigFunc({
       version: validVersion,
-      config: options.env,
+      config: 'dev',
       browser: options.browser,
       manifest: options.manifest,
       channel: options.channel
@@ -118,12 +119,24 @@ function task_package(cb) {
   cb();
 }
 
+function task_exit_watch(cb) {
+  if (options.env === 'pro') {
+    console.log('Exiting watch mode after task_package...');
+    cb();
+    exit(0);
+  } else {
+    cb();
+    // exit(0);
+  }
+}
+
 exports.build = gulp.series(
   task_clean,
   task_prepare,
   task_merge_manifest,
   task_clean_tmps,
   task_webpack,
-  task_uglify,
-  task_package
+  // task_uglify,
+  task_package,
+  task_exit_watch
 );

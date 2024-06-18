@@ -78,7 +78,7 @@ export function useTxIdUrl(txid: string) {
   if (networkType === NetworkType.MAINNET) {
     return `https://litecoinspace.org/tx/${txid}`;
   } else {
-    return `https://blockexplorer.one/litecoin/testnet/tx/${txid}`;
+    return `https://litecoinspace.org/testnet/tx/${txid}`;
   }
 }
 

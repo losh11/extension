@@ -54,7 +54,17 @@ module.exports = {
     'react/display-name': 0,
     'react/react-in-jsx-scope': 0,
     'react/no-unescaped-entities': 0,
+    '@typescript-eslint/no-explicit-any': 'off',
     'unused-imports/no-unused-imports': 'warn',
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        vars: 'all',
+        varsIgnorePattern: 'Currency'
+      }
+    ],
+    '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-unused-vars': [
       'warn',
       {

@@ -220,7 +220,7 @@ export function useFetchBalanceCallback() {
     const { total } = await wallet.getAllInscriptionList(currentAccount.address, 0, 0);
     const { list } = await wallet.getAddressInscriptions(currentAccount.address, 0, total);
     let inscription_amount = 0;
-    list.map((item: Inscription) => {
+    list?.map((item: Inscription) => {
       inscription_amount += item.outputValue / 100000000;
     });
     const _accountBalance = await wallet.getAddressBalance(currentAccount.address);

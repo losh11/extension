@@ -253,8 +253,7 @@ function InscribeTransferStep({ contextData, updateContextData }: StepProps) {
                           title={`${tokenBalance.availableBalanceUnSafe} ${tokenBalance.ticker} is unconfirmed, please wait for confirmation `}
                           overlayStyle={{
                             fontSize: fontSizes.xs
-                          }}
-                        >
+                          }}>
                           <div>
                             <Row>
                               <Text
@@ -289,7 +288,7 @@ function InscribeTransferStep({ contextData, updateContextData }: StepProps) {
               <Input
                 preset="amount"
                 placeholder={'Amount'}
-                value={inputAmount}
+                defaultValue={inputAmount}
                 autoFocus={true}
                 enableBrc20Decimal={true}
                 onAmountInputChange={(amount) => {

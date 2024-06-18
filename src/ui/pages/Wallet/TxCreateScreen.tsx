@@ -155,8 +155,7 @@ export default function TxCreateScreen() {
                 onClick={() => {
                   setAutoAdjust(true);
                   setInputAmount(accountBalance.amount);
-                }}
-              >
+                }}>
                 <Text text="MAX" preset="sub" style={{ color: autoAdjust ? colors.blues_light : colors.white_muted }} />
                 <Text text={`${accountBalance.amount} LTC`} preset="bold" size="sm" />
               </Row>
@@ -174,8 +173,7 @@ export default function TxCreateScreen() {
                 onClick={() => {
                   setAutoAdjust(true);
                   setInputAmount(safeBalance.toString());
-                }}
-              >
+                }}>
                 <Text text={'MAX'} color={autoAdjust ? 'blues' : 'textDim'} size="sm" />
                 <Text text={`${safeBalance} LTC`} preset="bold" size="sm" />
               </Row>
@@ -185,7 +183,7 @@ export default function TxCreateScreen() {
             preset="amount"
             placeholder={'Amount'}
             defaultValue={inputAmount}
-            value={inputAmount}
+            // value={inputAmount}
             onAmountInputChange={(amount) => {
               if (autoAdjust == true) {
                 setAutoAdjust(false);
@@ -213,8 +211,7 @@ export default function TxCreateScreen() {
           text="Next"
           onClick={(e) => {
             navigate('TxConfirmScreen', { rawTxInfo });
-          }}
-        ></Button>
+          }}></Button>
       </Content>
     </Layout>
   );

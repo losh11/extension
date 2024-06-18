@@ -37,8 +37,7 @@ function Step0({
             preset="default"
             onClick={() => {
               updateContextData({ tabType: TabType.STEP2, restoreWalletType: item.value });
-            }}
-          >
+            }}>
             <Text text={item.name} />
           </Button>
         );
@@ -102,8 +101,7 @@ function Step1_Create({
         justifyCenter
         onClick={(e) => {
           copy(contextData.mnemonics);
-        }}
-      >
+        }}>
         <Icon icon="copy" color="textDim" />
         <Text text="Copy to clipboard" color="textDim" />
       </Row>
@@ -240,8 +238,7 @@ function Step1_Import({
               updateContextData({ wordsType });
               setKeys(new Array(wordsItems[wordsType].count).fill(''));
             }}
-            value={contextData.wordsType}
-          >
+            value={contextData.wordsType}>
             {wordsItems.map((v) => (
               <Radio key={v.key} value={v.key}>
                 {v.label}
@@ -261,7 +258,7 @@ function Step1_Import({
                   <Input
                     containerStyle={{ width: 80, minHeight: 25, height: 25, padding: 0 }}
                     style={{ width: 60 }}
-                    value={_}
+                    defaultValue={_}
                     onPaste={(e) => {
                       handleEventPaste(e, index);
                     }}
@@ -647,7 +644,7 @@ function Step2({
       <Column>
         <Input
           placeholder={'Custom HD Wallet Derivation Path'}
-          value={pathText}
+          defaultValue={pathText}
           onChange={(e) => {
             submitCustomHdPath(e.target.value);
           }}
