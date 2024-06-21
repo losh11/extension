@@ -8,7 +8,7 @@ var minimist = require('minimist');
 var packageConfig = require('./package.json');
 const { exit } = require('process');
 const uglify = require('gulp-uglify');
-
+const fs = require('fs');
 //parse arguments
 var knownOptions = {
   string: ['env', 'browser', 'manifest', 'channel'],
@@ -47,12 +47,20 @@ if (!supported_mvs.includes(options.manifest)) {
 }
 
 //tasks...
-function task_clean() {
-  return gulp.src(`dist/${options.browser}/*`, { read: false }).pipe(clean());
+function task_clean(cb) {
+  const targetDir = `dist/${options.browser}`;
+
+  if (fs.existsSync(targetDir)) {
+    return gulp.src(`${targetDir}/*`, { read: false }).pipe(clean());
+  } else {
+    console.log(`Directory ${targetDir} does not exist.`);
+    cb(); // Signal asynchronous completion
+  }
+  // return gulp.src(`dist/${options.browser}/*`, { read: false }).pipe(clean());
 }
 
 function task_prepare() {
-  return gulp.src('build/_raw/**/*').pipe(gulp.dest(`dist/${options.browser}`));
+  return gulp.src('build/_raw/**/*', { encoding: false }).pipe(gulp.dest(`dist/${options.browser}`));
 }
 
 function task_merge_manifest() {
@@ -106,12 +114,12 @@ function task_package(cb) {
   if (options.env == 'pro') {
     if (options.browser == 'firefox') {
       return gulp
-        .src(`dist/${options.browser}/**/*`)
+        .src(`dist/${options.browser}/**/*`, { encoding: false })
         .pipe(zip(`${brandName}-${options.browser}-${options.manifest}-v${version}.xpi`))
         .pipe(gulp.dest('./dist'));
     } else {
       return gulp
-        .src(`dist/${options.browser}/**/*`)
+        .src(`dist/${options.browser}/**/*`, { encoding: false })
         .pipe(zip(`${brandName}-${options.browser}-${options.manifest}-v${version}.zip`))
         .pipe(gulp.dest('./dist'));
     }
