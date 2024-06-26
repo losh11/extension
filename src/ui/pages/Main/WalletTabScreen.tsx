@@ -55,7 +55,8 @@ export default function WalletTabScreen() {
     if (accountBalance.amount === '0') {
       return '--';
     } else {
-      return accountBalance.amount;
+      const parsedBalance = Math.round(parseFloat(accountBalance.amount) * 10000000) / 10000000;
+      return parsedBalance.toString();
     }
   }, [accountBalance.amount]);
 
@@ -92,7 +93,7 @@ export default function WalletTabScreen() {
       key: AssetTabKey.ORDINALS,
       label: 'Ordinals',
       children: <OrdinalsTab />
-    },
+    }
     // {
     //   key: AssetTabKey.ATOMICALS,
     //   label: 'Atomicals',
@@ -116,8 +117,7 @@ export default function WalletTabScreen() {
                 itemsCenter
                 onClick={() => {
                   navigate('ConnectedSitesScreen');
-                }}
-              >
+                }}>
                 <Text text="·" color="green" size="xxl" />
                 <Text text="Dapp Connected" size="xxs" />
               </Row>
@@ -129,8 +129,7 @@ export default function WalletTabScreen() {
             preset="style2"
             onClick={() => {
               navigate('SwitchKeyringScreen');
-            }}
-          >
+            }}>
             <Text text={currentKeyring.alianName} size="xxs" />
           </Card>
         }
@@ -149,22 +148,27 @@ export default function WalletTabScreen() {
               <>
                 <Row justifyBetween>
                   <span style={$noBreakStyle}>{'Confirmed LTC'}</span>
-                  <span style={$noBreakStyle}>{` ${accountBalance.confirm_btc_amount} LTC`}</span>
+                  <span style={$noBreakStyle}>{` ${
+                    Math.round(parseFloat(accountBalance.confirm_btc_amount) * 10000000) / 10000000
+                  } LTC`}</span>
                 </Row>
                 <Row justifyBetween>
                   <span style={$noBreakStyle}>{'Unconfirmed LTC'}</span>
-                  <span style={$noBreakStyle}>{` ${accountBalance.pending_btc_amount} LTC`}</span>
+                  <span style={$noBreakStyle}>{` ${
+                    Math.round(parseFloat(accountBalance.pending_btc_amount) * 10000000) / 10000000
+                  } LTC`}</span>
                 </Row>
                 <Row justifyBetween>
                   <span style={$noBreakStyle}>{'LTC in Inscriptions'}</span>
-                  <span style={$noBreakStyle}>{` ${accountBalance.inscription_amount} LTC`}</span>
+                  <span style={$noBreakStyle}>{` ${
+                    Math.round(parseFloat(accountBalance.inscription_amount) * 10000000) / 10000000
+                  } LTC`}</span>
                 </Row>
               </>
             }
             overlayStyle={{
               fontSize: fontSizes.xs
-            }}
-          >
+            }}>
             <div>
               <Text text={balanceValue + '  LTC'} preset="title-bold" textCenter size="xxxl" />
             </div>
@@ -177,8 +181,7 @@ export default function WalletTabScreen() {
               itemsCenter
               onClick={() => {
                 window.open(`${blockstreamUrl}/address/${currentAccount.address}`);
-              }}
-            >
+              }}>
               <Text text={'View History'} size="xs" />
               <Icon icon="link" size={fontSizes.xs} />
             </Row>

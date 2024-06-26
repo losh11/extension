@@ -9,7 +9,7 @@ export default function BRC20CardStack() {
     detail: {
       id: 'e9b86a063d78cc8a1ed17d291703bcc95bcd521e087ab0c7f1621c9c607def1ai0',
       address: 'tb1p29a2lp3ae7f6zdtxfwldunwzr8q9ff3lm4dcky98c2mphkxnu28sy8lt4x',
-      output_value: 546,
+      output_value: 1000,
       preview: 'https://ordinals.com/preview/e9b86a063d78cc8a1ed17d291703bcc95bcd521e087ab0c7f1621c9c607def1ai0',
       content: 'https://ordinals.com/content/e9b86a063d78cc8a1ed17d291703bcc95bcd521e087ab0c7f1621c9c607def1ai0',
       content_length: 16,

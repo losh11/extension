@@ -131,6 +131,8 @@ function InscribeTransferStep({ contextData, updateContextData }: StepProps) {
   const networkType = useNetworkType();
   const [getApproval, resolveApproval, rejectApproval] = useApproval();
 
+  const [defaultOutputValue, setOutputValue] = useState(10000);
+
   const handleCancel = () => {
     rejectApproval('User rejected the request.');
   };
@@ -628,7 +630,7 @@ function InscribeResultStep({
         <Column justifyCenter mt="xxl" gap="xl">
           <Text text="Inscribe Success" preset="title-bold" textCenter />
           <Column justifyCenter itemsCenter>
-            <InscriptionPreview data={result.inscription} preset="medium" />
+            <InscriptionPreview data={result} preset="medium" />
 
             <Column mt="lg">
               <Text

@@ -42,7 +42,7 @@ const testAddressInfo = {
     inscriptionId: '8436ee125d5cff80292e1ae3efdcde9880f020b63c5ee0f08a39865fc534ec36i0',
     inscriptionNumber: 1254,
     address: 'tb1q8h8s4zd9y0lkrx334aqnj4ykqs220ss7mjxzny',
-    outputValue: 546,
+    outputValue: 1000,
     preview: 'https://ordinals.com/preview/8436ee125d5cff80292e1ae3efdcde9880f020b63c5ee0f08a39865fc534ec36i0',
     content: 'https://ordinals.com/content/8436ee125d5cff80292e1ae3efdcde9880f020b63c5ee0f08a39865fc534ec36i0',
     contentLength: 40,
