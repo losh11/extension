@@ -131,7 +131,7 @@ function InscribeTransferStep({ contextData, updateContextData }: StepProps) {
   const networkType = useNetworkType();
   const [getApproval, resolveApproval, rejectApproval] = useApproval();
 
-  const [defaultOutputValue, setOutputValue] = useState(546);
+  const [defaultOutputValue, setOutputValue] = useState(10000);
 
   const handleCancel = () => {
     rejectApproval('User rejected the request.');

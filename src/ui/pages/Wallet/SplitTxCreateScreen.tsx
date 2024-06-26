@@ -26,7 +26,7 @@ export default function SplitTxCreateScreen() {
 
   const [feeRate, setFeeRate] = useState(5);
   const defaultOutputValue = inscription ? inscription.outputValue : 10000;
-  const minOutputValue = 546;
+  const minOutputValue = 1000;
   const [outputValue, setOutputValue] = useState(defaultOutputValue);
 
   const [rawTxInfo, setRawTxInfo] = useState<RawTxInfo>();
