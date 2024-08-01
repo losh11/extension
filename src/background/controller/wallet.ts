@@ -619,6 +619,9 @@ export class WalletController extends BaseController {
 
     const psbtNetwork = toPsbtNetwork(networkType);
 
+    const keyring = await this.getCurrentKeyring();
+    if (!keyring) throw new Error('No current keyring');
+
     const psbt = await createSendBTC({
       utxos: utxos.map((v) => {
         return {
@@ -626,7 +629,7 @@ export class WalletController extends BaseController {
           outputIndex: v.outputIndex,
           satoshis: v.satoshis,
           scriptPk: v.scriptPk,
-          addressType: v.addressType,
+          addressType: keyring.addressType,
           address: account.address,
           ords: v.inscriptions
         };
