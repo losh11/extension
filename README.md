@@ -14,7 +14,8 @@ Forked from UniSat Wallet - the first open-source browser extension wallet for O
 - Install [Yarn](https://yarnpkg.com/en/docs/install)
 - Install dependencies: `yarn`
 - Build the project to the `./dist/` folder with `yarn build:firefox` for Firefox
-- Build the project to the `./dist/` folder with `yarn build:chrome` for Chrome
+- Build the project to the `./dist/` folder with `yarn build:chrome`
+- `yarn build:chrome:mv3` for manifest3
 - Develop: `yarn build:chrome:dev`
 
 ## Special Thanks

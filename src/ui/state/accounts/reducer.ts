@@ -1,4 +1,4 @@
-import { Account, AppSummary, Inscription, InscriptionSummary, TxHistoryItem } from '@/shared/types';
+import { Account, AddressSummary, AppSummary, Inscription, InscriptionSummary, TxHistoryItem } from '@/shared/types';
 import { createSlice } from '@reduxjs/toolkit';
 
 import { updateVersion } from '../global/actions';
@@ -11,6 +11,8 @@ export interface AccountsState {
     [key: string]: {
       amount: string;
       btc_amount: string;
+      confirm_btc_amount: string;
+      pending_btc_amount: string;
       inscription_amount: string;
       expired: boolean;
     };
@@ -29,6 +31,7 @@ export interface AccountsState {
   };
   appSummary: AppSummary;
   inscriptionSummary: InscriptionSummary;
+  addressSummary: AddressSummary;
 }
 
 const initialAccount = {
@@ -40,7 +43,8 @@ const initialAccount = {
   index: 0,
   balance: 0,
   pubkey: '',
-  key: ''
+  key: '',
+  flag: 0
 };
 
 export const initialState: AccountsState = {
@@ -55,6 +59,16 @@ export const initialState: AccountsState = {
   },
   inscriptionSummary: {
     mintedList: []
+  },
+  addressSummary: {
+    totalSatoshis: 0,
+    btcSatoshis: 0,
+    assetSatoshis: 0,
+    inscriptionCount: 0,
+    atomicalsCount: 0,
+    brc20Count: 0,
+    arc20Count: 0,
+    loading: true
   }
 };
 
@@ -81,22 +95,31 @@ const slice = createSlice({
           amount: string;
           btc_amount: string;
           inscription_amount: string;
+          confirm_btc_amount: string;
+          pending_btc_amount: string;
         };
       }
     ) {
       const {
-        payload: { address, amount, btc_amount, inscription_amount }
+        payload: { address, amount, btc_amount, inscription_amount, confirm_btc_amount, pending_btc_amount }
       } = action;
       state.balanceMap[address] = state.balanceMap[address] || {
         amount: '0',
         btc_amount: '0',
         inscription_amount: '0',
+        confirm_btc_amount: '0',
+        pending_btc_amount: '0',
         expired: true
       };
       state.balanceMap[address].amount = amount;
       state.balanceMap[address].btc_amount = btc_amount;
       state.balanceMap[address].inscription_amount = inscription_amount;
+      state.balanceMap[address].confirm_btc_amount = confirm_btc_amount;
+      state.balanceMap[address].pending_btc_amount = pending_btc_amount;
       state.balanceMap[address].expired = false;
+    },
+    setAddressSummary(state, action: { payload: any }) {
+      state.addressSummary = action.payload;
     },
     expireBalance(state) {
       const balance = state.balanceMap[state.current.address];
@@ -146,6 +169,14 @@ const slice = createSlice({
         account.alianName = payload;
       }
     },
+    setCurrentAddressFlag(state, action: { payload: number }) {
+      const { payload } = action;
+      state.current.flag = payload;
+      const account = state.accounts.find((v) => v.address === state.current.address);
+      if (account) {
+        account.flag = payload;
+      }
+    },
     setInscriptionSummary(state, action: { payload: InscriptionSummary }) {
       const { payload } = action;
       state.inscriptionSummary = payload;
@@ -180,6 +211,17 @@ const slice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(updateVersion, (state) => {
       // todo
+      if (!state.addressSummary) {
+        state.addressSummary = {
+          totalSatoshis: 0,
+          btcSatoshis: 0,
+          assetSatoshis: 0,
+          inscriptionCount: 0,
+          atomicalsCount: 0,
+          brc20Count: 0,
+          arc20Count: 0
+        };
+      }
     });
   }
 });

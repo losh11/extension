@@ -13,24 +13,28 @@ const LITECOIN = {
   bech32: 'ltc',
   bip32: {
     public: 0x019da462,
-    private: 0x019d9cfe,
+    private: 0x019d9cfe
   },
   pubKeyHash: 0x30,
   scriptHash: 0x32,
   wif: 0xb0,
+  ltub: 0x019da462,
+  ltpv: 0x019d9cfe
 };
 
 const LITECOIN_TESTNET = {
   messagePrefix: '\x19Litecoin Signed Message:\n',
   bech32: 'tltc',
   bip32: {
-  public: 0x043587cf,
-  private: 0x04358394,
+    public: 0x043587cf,
+    private: 0x04358394
   },
   pubKeyHash: 0x6f,
-  scriptHash: 0xc4,
+  scriptHash: 0x3a,
   wif: 0xef,
-  };
+  tpub: 0x0436f6e1,
+  tprv: 0x0436ef7d
+};
 
 export const validator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>
   ECPair.fromPublicKey(pubkey).verify(msghash, signature);

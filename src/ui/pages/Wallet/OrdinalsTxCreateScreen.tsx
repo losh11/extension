@@ -31,7 +31,7 @@ export default function OrdinalsTxCreateScreen() {
   const [feeRate, setFeeRate] = useState(5);
   const defaultOutputValue = inscription ? inscription.outputValue : 10000;
 
-  const minOutputValue = Math.max(inscription.offset, 546);
+  const minOutputValue = Math.max(inscription.offset, 1000);
   const [outputValue, setOutputValue] = useState(defaultOutputValue);
 
   const [rawTxInfo, setRawTxInfo] = useState<RawTxInfo>();
@@ -108,6 +108,7 @@ export default function OrdinalsTxCreateScreen() {
 
           <OutputValueBar
             defaultValue={defaultOutputValue}
+            minValue={minOutputValue}
             onChange={(val) => {
               setOutputValue(val);
             }}

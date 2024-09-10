@@ -1,14 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { DecodedPsbt } from '@/shared/types';
-import { Inscription } from '@/shared/types';
-import { Button, Layout, Content, Footer, Icon, Text, Row, Card, Column, TextArea, Header } from '@/ui/components';
+import { DecodedPsbt, Inscription } from '@/shared/types';
+import { Button, Card, Column, Content, Footer, Header, Icon, Layout, Row, Text, TextArea } from '@/ui/components';
 import { useTools } from '@/ui/components/ActionComponent';
 import { AddressText } from '@/ui/components/AddressText';
 import { Empty } from '@/ui/components/Empty';
 import InscriptionPreview from '@/ui/components/InscriptionPreview';
 import { TabBar } from '@/ui/components/TabBar';
-import { WarningPopver } from '@/ui/components/WarningPopver';
+import { WarningPopover } from '@/ui/components/WarningPopover';
 import WebsiteBar from '@/ui/components/WebsiteBar';
 import { useAccountAddress } from '@/ui/state/accounts/hooks';
 import { colors } from '@/ui/theme/colors';
@@ -351,13 +350,15 @@ export default function MultiSignPsbt({
                 <Card>
                   <Column full justifyCenter>
                     {decodedPsbt.inputInfos.map((v, index) => {
+                      const isToSign = toSignInputs && toSignInputs.find((v) => v.index === index) ? true : false;
                       return (
                         <Row
                           key={'output_' + index}
                           style={index === 0 ? {} : { borderColor: colors.border, borderTopWidth: 1, paddingTop: 10 }}
-                          justifyBetween>
+                          justifyBetween
+                        >
                           <AddressText address={v.address} />
-                          <Text text={`${satoshisToAmount(v.value)} BTC`} />
+                          <Text text={`${satoshisToAmount(v.value)} LTC`} />
                         </Row>
                       );
                     })}
@@ -374,9 +375,10 @@ export default function MultiSignPsbt({
                         <Row
                           key={'output_' + index}
                           style={index === 0 ? {} : { borderColor: colors.border, borderTopWidth: 1, paddingTop: 10 }}
-                          justifyBetween>
+                          justifyBetween
+                        >
                           <AddressText address={v.address} />
-                          <Text text={`${satoshisToAmount(v.value)} BTC`} />
+                          <Text text={`${satoshisToAmount(v.value)} LTC`} />
                         </Row>
                       );
                     })}
@@ -386,7 +388,7 @@ export default function MultiSignPsbt({
 
               <Section title="NETWORK FEE:">
                 <Text text={networkFee} />
-                <Text text="BTC" color="textDim" />
+                <Text text="LTC" color="textDim" />
               </Section>
 
               <Section title="NETWORK FEE RATE:">
@@ -407,7 +409,8 @@ export default function MultiSignPsbt({
                   copyToClipboard(psbtHex).then(() => {
                     tools.toastSuccess('Copied');
                   });
-                }}>
+                }}
+              >
                 <Icon icon="copy" color="textDim" />
                 <Text text="Copy psbt transaction data" color="textDim" />
               </Row>
@@ -449,7 +452,7 @@ export default function MultiSignPsbt({
           />
         </Row>
         {warningState.visible && (
-          <WarningPopver
+          <WarningPopover
             text={warningState.text}
             onClose={() => {
               setWarningState({ visible: false, text: '' });

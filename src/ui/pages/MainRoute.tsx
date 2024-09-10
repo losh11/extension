@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { HashRouter, Route, Routes } from 'react-router-dom';
-import { useNavigate as useNavigateOrigin } from 'react-router-dom';
+import { HashRouter, Route, Routes, useNavigate as useNavigateOrigin } from 'react-router-dom';
 
 import { LoadingOutlined } from '@ant-design/icons';
 
@@ -13,7 +12,6 @@ import { settingsActions } from '../state/settings/reducer';
 import { useWallet } from '../utils';
 import AddKeyringScreen from './Account/AddKeyringScreen';
 import CreateAccountScreen from './Account/CreateAccountScreen';
-import SelectPhraseLengthScreen from './Account/SelectPhraseLengthScreen';
 import CreateHDWalletScreen from './Account/CreateHDWalletScreen';
 import CreatePasswordScreen from './Account/CreatePasswordScreen';
 import CreateSimpleWalletScreen from './Account/CreateSimpleWalletScreen';
@@ -31,6 +29,7 @@ import DiscoverTabScreen from './Main/DiscoverTabScreen';
 import SettingsTabScreen from './Main/SettingsTabScreen';
 import WalletTabScreen from './Main/WalletTabScreen';
 import WelcomeScreen from './Main/WelcomeScreen';
+import SignOrdinalsTransactionScreen from './Ordinals/SignOrdinalsTransactionScreen';
 import AddressTypeScreen from './Settings/AddressTypeScreen';
 import ChangePasswordScreen from './Settings/ChangePasswordScreen';
 import EditAccountNameScreen from './Settings/EditAccountNameScreen';
@@ -77,10 +76,6 @@ const routes = {
   SettingsTabScreen: {
     path: '/settings',
     element: <SettingsTabScreen />
-  },
-  SelectPhraseLengthScreen: {
-    path: '/account/select-phrase-length',
-    element: <SelectPhraseLengthScreen />
   },
   CreateHDWalletScreen: {
     path: '/account/create-hd-wallet',
@@ -217,6 +212,10 @@ const routes = {
   SplitTxCreateScreen: {
     path: '/wallet/split-tx/create',
     element: <SplitTxCreateScreen />
+  },
+  SignOrdinalsTransactionScreen: {
+    path: '/wallet/ordinals/signTx',
+    element: <SignOrdinalsTransactionScreen />
   }
 };
 

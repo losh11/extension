@@ -38,7 +38,8 @@ function TabButton({ tabName, icon, isActive }: { tabName: TabOption; icon: Icon
         } else if (tabName === 'settings') {
           navigate('SettingsTabScreen');
         }
-      }}>
+      }}
+    >
       <Icon icon={icon} color={isActive ? 'white' : 'white_muted'} />
     </Column>
   );

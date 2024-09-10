@@ -4,7 +4,7 @@ import { NetworkType, TokenBalance, TxType } from '@/shared/types';
 import { Card, Column, Content, Input, Layout, Text } from '@/ui/components';
 import { AddressDetailPopover } from '@/ui/components/AddressDetailPopover';
 import { AddressText } from '@/ui/components/AddressText';
-import { AddressTypeCard, AddressTypeCard2 } from '@/ui/components/AddressTypeCard';
+import { AddressTypeCard2 } from '@/ui/components/AddressTypeCard';
 import BRC20BalanceCard from '@/ui/components/BRC20BalanceCard';
 import { RemoveWalletPopover } from '@/ui/components/RemoveWalletPopover';
 import { useCurrentKeyring } from '@/ui/state/keyrings/hooks';
@@ -42,7 +42,7 @@ const testAddressInfo = {
     inscriptionId: '8436ee125d5cff80292e1ae3efdcde9880f020b63c5ee0f08a39865fc534ec36i0',
     inscriptionNumber: 1254,
     address: 'tb1q8h8s4zd9y0lkrx334aqnj4ykqs220ss7mjxzny',
-    outputValue: 546,
+    outputValue: 1000,
     preview: 'https://ordinals.com/preview/8436ee125d5cff80292e1ae3efdcde9880f020b63c5ee0f08a39865fc534ec36i0',
     content: 'https://ordinals.com/content/8436ee125d5cff80292e1ae3efdcde9880f020b63c5ee0f08a39865fc534ec36i0',
     contentLength: 40,
@@ -78,7 +78,8 @@ function TestButton() {
     <Card
       onClick={() => {
         //tpdp
-      }}>
+      }}
+    >
       <Text text="HELLO" />
       <Text text="WORLD" />
     </Card>
@@ -262,7 +263,7 @@ function TestTxFailed() {
 
 function TestAddressTypeCard() {
   const items = [
-    { address: 'bc1qm72q6wrjy05h9fhu9gury67356nrcnvdd6853x', path: "m/84'/0'/0'/0/0", satoshis: 100 }
+    { address: 'bc1qm72q6wrjy05h9fhu9gury67356nrcnvdd6853x', path: 'm/84\'/0\'/0\'/0/0', satoshis: 100 }
     // { address: 'bc1qug97mq778xeusw66z559uuwcyt7kxsmarrvl90', path: "m/84'/0'/0'/0/1" }
   ];
   return (

@@ -1,5 +1,3 @@
-import bitcore from 'bitcore-lib';
-import WAValidator from 'multicoin-address-validator';
 import { isNull } from 'lodash';
 import React, { CSSProperties, useEffect, useState } from 'react';
 
@@ -8,8 +6,10 @@ import { Inscription } from '@/shared/types';
 import { colors } from '@/ui/theme/colors';
 import { spacing } from '@/ui/theme/spacing';
 import { useWallet } from '@/ui/utils';
+import { validate } from '@/ui/utils/AddressValidator';
 
 import { AccordingInscription } from '../AccordingInscription';
+import { useTools } from '../ActionComponent';
 import { CopyableAddress } from '../CopyableAddress';
 import { Icon } from '../Icon';
 import { Row } from '../Row';
@@ -32,7 +32,10 @@ export interface InputProps {
   containerStyle?: CSSProperties;
   addressInputData?: { address: string; domain: string };
   onAddressInputChange?: (params: { address: string; domain: string; inscription?: Inscription }) => void;
+  onAmountInputChange?: (amount: string) => void;
   disabled?: boolean;
+  disableDecimal?: boolean;
+  enableBrc20Decimal?: boolean;
 }
 
 type Presets = keyof typeof $inputPresets;
@@ -86,11 +89,58 @@ function PasswordInput(props: InputProps) {
 }
 
 function AmountInput(props: InputProps) {
-  const { placeholder, disabled, style: $inputStyleOverride, ...rest } = props;
+  const {
+    placeholder,
+    onAmountInputChange,
+    disabled,
+    style: $inputStyleOverride,
+    disableDecimal,
+    enableBrc20Decimal,
+    ...rest
+  } = props;
   const $style = Object.assign({}, $baseInputStyle, $inputStyleOverride, disabled ? { color: colors.textDim } : {});
+
+  if (!onAmountInputChange) {
+    return <div />;
+  }
+  const [inputValue, setInputValue] = useState('');
+  const [validAmount, setValidAmount] = useState('');
+  useEffect(() => {
+    onAmountInputChange(validAmount);
+  }, [validAmount]);
+
+  const handleInputAmount = (e) => {
+    const value = e.target.value;
+    if (disableDecimal) {
+      if (/^[1-9]\d*$/.test(value) || value === '') {
+        setValidAmount(value);
+        setInputValue(value);
+      }
+    } else {
+      if (enableBrc20Decimal) {
+        if (/^\d*\.?\d{0,18}$/.test(value) || value === '') {
+          setValidAmount(value);
+          setInputValue(value);
+        }
+      } else {
+        if (/^\d*\.?\d{0,8}$/.test(value) || value === '') {
+          setValidAmount(value);
+          setInputValue(value);
+        }
+      }
+    }
+  };
   return (
     <div style={$baseContainerStyle}>
-      <input placeholder={placeholder || 'Amount'} type={'number'} style={$style} disabled={disabled} {...rest} />
+      <input
+        placeholder={placeholder || 'Amount'}
+        type={'text'}
+        defaultValue={inputValue}
+        onChange={handleInputAmount}
+        style={$style}
+        disabled={disabled}
+        {...rest}
+      />
     </div>
   );
 }
@@ -109,9 +159,9 @@ export const AddressInput = (props: InputProps) => {
   const [inputVal, setInputVal] = useState(addressInputData.domain || addressInputData.address);
 
   const [inscription, setInscription] = useState<Inscription>();
-
+  const [parseName, setParseName] = useState('');
   const wallet = useWallet();
-
+  const tools = useTools();
   useEffect(() => {
     onAddressInputChange({
       address: validAddress,
@@ -120,10 +170,9 @@ export const AddressInput = (props: InputProps) => {
     });
   }, [validAddress]);
 
-  const handleInputAddress = (e) => {
-    const inputAddress = e.target.value;
-    setInputVal(inputAddress);
+  const [searching, setSearching] = useState(false);
 
+  const resetState = () => {
     if (parseError) {
       setParseError('');
     }
@@ -138,8 +187,25 @@ export const AddressInput = (props: InputProps) => {
       setValidAddress('');
     }
 
+    if (inscription) {
+      setInscription(undefined);
+    }
+    setParseName('');
+  };
+
+  const handleInputAddress = (e) => {
+    const inputAddress = e.target.value.trim();
+    setInputVal(inputAddress);
+
+    resetState();
+
     const teststr = inputAddress.toLowerCase();
-    if (teststr.endsWith(SATS_DOMAIN) || teststr.endsWith(UNISAT_DOMAIN) || teststr.endsWith(LTC_DOMAIN) || teststr.endsWith(LITE_DOMAIN)) {
+    if (
+      teststr.endsWith(SATS_DOMAIN) ||
+      teststr.endsWith(UNISAT_DOMAIN) ||
+      teststr.endsWith(LTC_DOMAIN) ||
+      teststr.endsWith(LITE_DOMAIN)
+    ) {
       wallet
         .queryDomainInfo(encodeURIComponent(inputAddress))
         .then((inscription) => {
@@ -157,7 +223,7 @@ export const AddressInput = (props: InputProps) => {
           setFormatError(errMsg);
         });
     } else {
-      const isValid = WAValidator.validate(inputAddress, 'litecoin');
+      const isValid = validate(inputAddress, 'litecoin');
       if (!isValid) {
         setFormatError('Recipient address is invalid');
         return;
@@ -181,6 +247,11 @@ export const AddressInput = (props: InputProps) => {
           {...rest}
         />
 
+        {searching && (
+          <Row full mt="sm">
+            <Text preset="sub" text={'Loading...'} />
+          </Row>
+        )}
         {validAddress && inscription && (
           <Row full itemsCenter mt="sm">
             <CopyableAddress address={parseAddress} />
@@ -189,6 +260,20 @@ export const AddressInput = (props: InputProps) => {
         )}
       </div>
 
+      {parseName ? (
+        <Row mt="sm" gap="zero" itemsCenter>
+          <Text preset="sub" size="sm" text={'Name recognized and resolved. ('} />
+          <Text
+            preset="link"
+            color="yellow"
+            text={'More details'}
+            onClick={() => {
+              window.open('https://litescribe.io/');
+            }}
+          />
+          <Text preset="sub" size="sm" text={')'} />
+        </Row>
+      ) : null}
       {parseError && <Text text={parseError} preset="regular" color="error" />}
       <Text text={formatError} preset="regular" color="error" />
     </div>

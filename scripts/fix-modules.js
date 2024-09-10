@@ -48,6 +48,13 @@ const fixWindowError3 = () => {
   fs.writeFileSync(file, fileData);
 };
 
+const fixWindowError4 = () => {
+  const file = './node_modules/@unisat/wallet-sdk/node_modules/tiny-secp256k1/lib/rand.browser.js';
+  let fileData = fs.readFileSync(file).toString();
+  fileData = fileData.replace('window.crypto', 'crypto');
+  fs.writeFileSync(file, fileData);
+};
+
 const fixBufferError = () => {
   const file = './node_modules/bitcore-lib/lib/crypto/signature.js';
   let fileData = fs.readFileSync(file).toString();
@@ -87,13 +94,44 @@ const fixBufferError = () => {
   fs.writeFileSync(file, fileData);
 };
 
+const fixWalletSdkError = () => {
+  const file = './node_modules/@unisat/wallet-sdk/lib/bitcoin-core.js';
+  let fileData = fs.readFileSync(file).toString();
+  fileData = `"use strict";
+  Object.defineProperty(exports, "__esModule", { value: true });
+  exports.ecc = exports.bitcoin = exports.ECPair = void 0;
+  
+  const bitcoin = require("bitcoinjs-lib");
+  const ecpair = require("ecpair");
+  
+  let eccPromise;
+  try {
+    // Attempt to import tiny-secp256k1
+    eccPromise = import("tiny-secp256k1");
+  } catch (error) {
+    // If import fails, fallback to a synchronous import
+    eccPromise = Promise.resolve(require("tiny-secp256k1"));
+  }
+  
+  eccPromise.then((ecc) => {
+    exports.bitcoin = bitcoin;
+    exports.ecc = ecc;
+    exports.ECPair = ecpair.default(ecc); // use .default if available, otherwise use the module directly
+    bitcoin.initEccLib(ecc);
+  });
+  `;
+  fs.writeFileSync(file, fileData);
+};
+
 const run = async () => {
   let success = true;
   try {
     fixWindowError();
     fixWindowError2();
     fixWindowError3();
+    fixWindowError4();
     fixBufferError();
+    fixWalletSdkError();
   } catch (e) {
     console.error('error:', e.message);
     success = false;

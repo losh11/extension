@@ -17,7 +17,7 @@ export const initialState: SettingsState = {
   networkType: NetworkType.MAINNET,
   walletConfig: {
     version: '',
-    moonPayEnabled: false,
+    moonPayEnabled: true,
     statusMessage: ''
   },
   skippedVersion: ''

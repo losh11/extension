@@ -24,9 +24,9 @@ export default function CreatePasswordScreen() {
   const [run, loading] = useWalletRequest(wallet.boot, {
     onSuccess() {
       if (isNewAccount) {
-        navigate('SelectPhraseLengthScreen', { isImport: false, fromUnlock: true });
+        navigate('CreateHDWalletScreen', { isImport: false, fromUnlock: true });
       } else {
-        navigate('SelectPhraseLengthScreen', { isImport: true, fromUnlock: true });
+        navigate('CreateHDWalletScreen', { isImport: true, fromUnlock: true });
       }
     },
     onError(err) {

@@ -17,7 +17,7 @@ export default function WelcomeScreen() {
           </Row>
           <Column gap="xl" mt="xxl">
             <Text
-              text={"Inscribe and store your inscriptions in the world's first Open Source Chrome wallet for Ordinals!"}
+              text={"Inscribe and store your inscriptions in the world's first Open Source Chrome wallet for Litecoin Ordinals!"}
               preset="sub"
               textCenter
             />
@@ -28,7 +28,7 @@ export default function WelcomeScreen() {
               onClick={async () => {
                 const isBooted = await wallet.isBooted();
                 if (isBooted) {
-                  navigate('SelectPhraseLengthScreen', { isImport: false });
+                  navigate('CreateHDWalletScreen', { isImport: false });
                 } else {
                   navigate('CreatePasswordScreen', { isNewAccount: true });
                 }

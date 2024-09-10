@@ -21,6 +21,9 @@ export const RemoveWalletPopover = ({ keyring, onClose }: { keyring: WalletKeyri
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const displayAddress = useMemo(() => {
+    if (!keyring.accounts[0]) {
+      return 'Invalid';
+    }
     const address = keyring.accounts[0].address;
     return shortAddress(address);
   }, []);
@@ -37,7 +40,8 @@ export const RemoveWalletPopover = ({ keyring, onClose }: { keyring: WalletKeyri
             flexDirection: 'row',
             backgroundColor: '#CC3333',
             justifyContent: 'center'
-          }}>
+          }}
+        >
           <FontAwesomeIcon icon={faTrashCan} style={{ height: '1rem' }} />
         </div>
 
@@ -69,14 +73,20 @@ export const RemoveWalletPopover = ({ keyring, onClose }: { keyring: WalletKeyri
             full
             onClick={async () => {
               const nextKeyring = await wallet.removeKeyring(keyring);
+              const keyrings = await wallet.getKeyrings();
+              dispatch(keyringsActions.setKeyrings(keyrings));
+
               if (nextKeyring) {
-                const keyrings = await wallet.getKeyrings();
-                dispatch(keyringsActions.setKeyrings(keyrings));
-                dispatch(keyringsActions.setCurrent(keyrings[0]));
                 dispatch(accountActions.setCurrent(nextKeyring.accounts[0]));
-              } else {
-                navigate('WelcomeScreen');
+                return;
               }
+
+              if (keyrings[0]) {
+                dispatch(keyringsActions.setCurrent(keyrings[0]));
+                return;
+              }
+
+              navigate('WelcomeScreen');
             }}
           />
         </Row>

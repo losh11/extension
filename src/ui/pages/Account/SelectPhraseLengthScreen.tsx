@@ -1,8 +1,9 @@
-import { Button, Column, Content, Header, Layout, Text } from '@/ui/components';
 import { useLocation } from 'react-router-dom';
 
-import { useNavigate } from '../MainRoute';
+import { Button, Column, Content, Header, Layout, Text } from '@/ui/components';
+
 import { WordsType } from '../Account/CreateHDWalletScreen';
+import { useNavigate } from '../MainRoute';
 
 export default function SelectPhraseLengthScreen() {
   const navigate = useNavigate();
@@ -29,15 +30,21 @@ export default function SelectPhraseLengthScreen() {
             preset="default"
             onClick={(e) => {
               navigate('CreateHDWalletScreen', { isImport: isImport, fromUnlock: fromUnlock });
-            }}>
+            }}
+          >
             <Text text="12 Words (Default)" size="sm" />
           </Button>
 
           <Button
             preset="default"
             onClick={(e) => {
-              navigate('CreateHDWalletScreen', { isImport: isImport, fromUnlock: fromUnlock, wordsType: WordsType.WORDS_24 });
-            }}>
+              navigate('CreateHDWalletScreen', {
+                isImport: isImport,
+                fromUnlock: fromUnlock,
+                wordsType: WordsType.WORDS_24
+              });
+            }}
+          >
             <Text text="24 Words" size="sm" />
           </Button>
         </Column>

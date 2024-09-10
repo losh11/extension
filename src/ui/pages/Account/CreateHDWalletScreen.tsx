@@ -1,22 +1,22 @@
-import { Checkbox, Dropdown, Radio } from 'antd';
+import { Checkbox, Radio } from 'antd';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import * as bip39 from 'bip39';
 import bitcore from 'bitcore-lib';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { ADDRESS_TYPES, RESTORE_WALLETS } from '@/shared/constant';
+import { ADDRESS_TYPES, OW_HD_PATH, RESTORE_WALLETS } from '@/shared/constant';
 import { AddressType, RestoreWalletType } from '@/shared/types';
 import { Button, Card, Column, Content, Grid, Header, Input, Layout, Row, Text } from '@/ui/components';
 import { useTools } from '@/ui/components/ActionComponent';
-import { AddressTypeCard, AddressTypeCard2 } from '@/ui/components/AddressTypeCard';
+import { AddressTypeCard2 } from '@/ui/components/AddressTypeCard';
 import { FooterButtonContainer } from '@/ui/components/FooterButtonContainer';
 import { Icon } from '@/ui/components/Icon';
 import { TabBar } from '@/ui/components/TabBar';
 import { useCreateAccountCallback } from '@/ui/state/global/hooks';
 import { fontSizes } from '@/ui/theme/font';
 import { amountToSatoshis, copyToClipboard, useWallet } from '@/ui/utils';
-import { CloseOutlined, LoadingOutlined } from '@ant-design/icons';
+import { LoadingOutlined } from '@ant-design/icons';
 
 import { useNavigate } from '../MainRoute';
 
@@ -59,7 +59,7 @@ function Step1_Create({
   const tools = useTools();
 
   const init = async () => {
-    const _mnemonics = (await wallet.generatePreMnemonic(contextData.entropy));
+    const _mnemonics = (await wallet.getPreMnemonics()) || (await wallet.generatePreMnemonic());
     updateContextData({
       mnemonics: _mnemonics
     });
@@ -141,10 +141,21 @@ function Step1_Import({
   contextData: ContextData;
   updateContextData: (params: UpdateContextDataParams) => void;
 }) {
-  const [keys, setKeys] = useState<Array<string>>(new Array(wordsItems[contextData.wordsType].count).fill(''));
   const [curInputIndex, setCurInputIndex] = useState(0);
   const [hover, setHover] = useState(999);
   const [disabled, setDisabled] = useState(true);
+
+  const wordsItems = useMemo(() => {
+    if (contextData.restoreWalletType === RestoreWalletType.OW) {
+      return [WORDS_12_ITEM];
+    } else if (contextData.restoreWalletType === RestoreWalletType.XVERSE) {
+      return [WORDS_12_ITEM];
+    } else {
+      return [WORDS_12_ITEM, WORDS_24_ITEM];
+    }
+  }, [contextData]);
+
+  const [keys, setKeys] = useState<Array<string>>(new Array(wordsItems[contextData.wordsType].count).fill(''));
 
   const handleEventPaste = (event, index: number) => {
     const copyText = event.clipboardData?.getData('text/plain');
@@ -192,9 +203,21 @@ function Step1_Import({
     //todo
   }, [hover]);
 
-  const onNext = () => {
-    const mnemonics = keys.join(' ');
-    updateContextData({ mnemonics, tabType: TabType.STEP3 });
+  const createAccount = useCreateAccountCallback();
+  const navigate = useNavigate();
+  const tools = useTools();
+  const onNext = async () => {
+    try {
+      const mnemonics = keys.join(' ');
+      if (contextData.restoreWalletType === RestoreWalletType.OW) {
+        await createAccount(mnemonics, OW_HD_PATH, '', AddressType.P2TR, 1);
+        navigate('MainScreen');
+      } else {
+        updateContextData({ mnemonics, tabType: TabType.STEP3 });
+      }
+    } catch (e) {
+      tools.toastError((e as any).message);
+    }
   };
   const handleOnKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!disabled && 'Enter' == e.key) {
@@ -207,21 +230,23 @@ function Step1_Import({
       <Text text="Secret Recovery Phrase" preset="title-bold" textCenter />
       <Text text="Import an existing wallet with your secret recovery phrase" preset="sub" textCenter />
 
-      <Row justifyCenter>
-        <Radio.Group
-          onChange={(e) => {
-            const wordsType = e.target.value;
-            updateContextData({ wordsType });
-            setKeys(new Array(wordsItems[wordsType].count).fill(''));
-          }}
-          value={contextData.wordsType}>
-          {wordsItems.map((v) => (
-            <Radio key={v.key} value={v.key}>
-              {v.label}
-            </Radio>
-          ))}
-        </Radio.Group>
-      </Row>
+      {wordsItems.length > 1 ? (
+        <Row justifyCenter>
+          <Radio.Group
+            onChange={(e) => {
+              const wordsType = e.target.value;
+              updateContextData({ wordsType });
+              setKeys(new Array(wordsItems[wordsType].count).fill(''));
+            }}
+            value={contextData.wordsType}>
+            {wordsItems.map((v) => (
+              <Radio key={v.key} value={v.key}>
+                {v.label}
+              </Radio>
+            ))}
+          </Radio.Group>
+        </Row>
+      ) : null}
 
       <Row justifyCenter>
         <Grid columns={2}>
@@ -233,7 +258,7 @@ function Step1_Import({
                   <Input
                     containerStyle={{ width: 80, minHeight: 25, height: 25, padding: 0 }}
                     style={{ width: 60 }}
-                    value={_}
+                    defaultValue={_}
                     onPaste={(e) => {
                       handleEventPaste(e, index);
                     }}
@@ -320,14 +345,16 @@ function Step2({
   }, [contextData]);
 
   const allHdPathOptions = useMemo(() => {
-    return ADDRESS_TYPES.sort((a, b) => a.displayIndex - b.displayIndex).map((v) => {
-      return {
-        label: v.name,
-        hdPath: v.hdPath,
-        addressType: v.value,
-        isUnisatLegacy: v.isUnisatLegacy
-      };
-    });
+    return ADDRESS_TYPES.map((v) => v)
+      .sort((a, b) => a.displayIndex - b.displayIndex)
+      .map((v) => {
+        return {
+          label: v.name,
+          hdPath: v.hdPath,
+          addressType: v.value,
+          isUnisatLegacy: v.isUnisatLegacy
+        };
+      });
   }, []);
 
   const [previewAddresses, setPreviewAddresses] = useState<string[]>(hdPathOptions.map((v) => ''));
@@ -341,6 +368,7 @@ function Step2({
   }>({});
 
   const [error, setError] = useState('');
+  const [pathError, setPathError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const createAccount = useCreateAccountCallback();
@@ -350,8 +378,9 @@ function Step2({
 
   useEffect(() => {
     if (scannedGroups.length > 0) {
-      const option = allHdPathOptions[contextData.addressTypeIndex];
-      updateContextData({ addressType: option.addressType });
+      const itemIndex = scannedGroups.findIndex((v) => v.address_arr.length > 0);
+      const item = scannedGroups[itemIndex];
+      updateContextData({ addressType: item.type, addressTypeIndex: itemIndex });
     } else {
       const option = hdPathOptions[contextData.addressTypeIndex];
       updateContextData({ addressType: option.addressType });
@@ -369,6 +398,7 @@ function Step2({
           contextData.passphrase,
           options.addressType
         );
+
         // const address = keyring.accounts[0].address;
         // addresses.push(address);
         keyring.accounts.forEach((v) => {
@@ -432,25 +462,32 @@ function Step2({
     fetchAddressesBalance();
   }, [previewAddresses]);
 
-  const submitCustomHdPath = () => {
-    if (contextData.customHdPath === pathText) return;
-    const isValid = bitcore.HDPrivateKey.isValidPath(pathText);
-    if (!isValid) {
-      setError('Invalid derivation path.');
-      return;
+  const submitCustomHdPath = (text: string) => {
+    setPathError('');
+    setPathText(text);
+    if (text !== '') {
+      const isValid = bitcore.HDPrivateKey.isValidPath(text);
+      if (!isValid) {
+        setPathError('Invalid derivation path.');
+        return;
+      }
+      updateContextData({
+        customHdPath: text
+      });
+    } else {
+      updateContextData({
+        customHdPath: ''
+      });
     }
-    updateContextData({
-      customHdPath: pathText
-    });
   };
 
-  const resetCustomHdPath = () => {
-    updateContextData({
-      customHdPath: ''
-    });
-    setError('');
-    setPathText('');
-  };
+  const disabled = useMemo(() => {
+    if (!error && !pathError) {
+      return false;
+    } else {
+      return true;
+    }
+  }, [error, pathError]);
 
   const onNext = async () => {
     try {
@@ -458,6 +495,7 @@ function Step2({
         const option = allHdPathOptions[contextData.addressTypeIndex];
         const hdPath = contextData.customHdPath || option.hdPath;
         const selected = scannedGroups[contextData.addressTypeIndex];
+
         await createAccount(
           contextData.mnemonics,
           hdPath,
@@ -606,24 +644,13 @@ function Step2({
       <Column>
         <Input
           placeholder={'Custom HD Wallet Derivation Path'}
-          value={pathText}
-          onChange={async (e) => {
-            setError('');
-            setPathText(e.target.value);
-          }}
-          onBlur={(e) => {
-            submitCustomHdPath();
+          defaultValue={pathText}
+          onChange={(e) => {
+            submitCustomHdPath(e.target.value);
           }}
         />
-        {contextData.customHdPath && (
-          <Icon
-            onClick={() => {
-              resetCustomHdPath();
-            }}>
-            <CloseOutlined />
-          </Icon>
-        )}
       </Column>
+      {pathError && <Text text={pathError} color="error" />}
       {error && <Text text={error} color="error" />}
 
       <Text text="Phrase (Optional)" preset="bold" mt="lg" />
@@ -639,7 +666,7 @@ function Step2({
       />
 
       <FooterButtonContainer>
-        <Button text="Continue" preset="primary" onClick={onNext} />
+        <Button text="Continue" preset="primary" onClick={onNext} disabled={disabled} />
       </FooterButtonContainer>
 
       {loading && (
@@ -657,27 +684,25 @@ enum TabType {
   STEP3 = 'STEP3'
 }
 
-export enum WordsType {
+enum WordsType {
   WORDS_12,
   WORDS_24
 }
 
-const wordsItems = [
-  {
-    key: WordsType.WORDS_12,
-    label: '12 words',
-    count: 12
-  },
-  {
-    key: WordsType.WORDS_24,
-    label: '24 words',
-    count: 24
-  }
-];
+const WORDS_12_ITEM = {
+  key: WordsType.WORDS_12,
+  label: '12 words',
+  count: 12
+};
+
+const WORDS_24_ITEM = {
+  key: WordsType.WORDS_24,
+  label: '24 words',
+  count: 24
+};
 
 interface ContextData {
   mnemonics: string;
-  entropy: number;
   hdPath: string;
   passphrase: string;
   addressType: AddressType;
@@ -709,15 +734,13 @@ export default function CreateHDWalletScreen() {
   const navigate = useNavigate();
 
   const { state } = useLocation();
-  const { isImport, fromUnlock, wordsType = WordsType.WORDS_12 } = state as {
+  const { isImport, fromUnlock } = state as {
     isImport: boolean;
     fromUnlock: boolean;
-    wordsType?: number;
   };
 
   const [contextData, setContextData] = useState<ContextData>({
     mnemonics: '',
-    entropy: wordsItems[wordsType].count / 3 * 32,
     hdPath: '',
     passphrase: '',
     addressType: AddressType.P2WPKH,
@@ -740,23 +763,38 @@ export default function CreateHDWalletScreen() {
 
   const items = useMemo(() => {
     if (contextData.isRestore) {
-      return [
-        {
-          key: TabType.STEP1,
-          label: 'Step 1',
-          children: <Step0 contextData={contextData} updateContextData={updateContextData} />
-        },
-        {
-          key: TabType.STEP2,
-          label: 'Step 2',
-          children: <Step1_Import contextData={contextData} updateContextData={updateContextData} />
-        },
-        {
-          key: TabType.STEP3,
-          label: 'Step 3',
-          children: <Step2 contextData={contextData} updateContextData={updateContextData} />
-        }
-      ];
+      if (contextData.restoreWalletType === RestoreWalletType.OW) {
+        return [
+          {
+            key: TabType.STEP1,
+            label: 'Step 1',
+            children: <Step0 contextData={contextData} updateContextData={updateContextData} />
+          },
+          {
+            key: TabType.STEP2,
+            label: 'Step 2',
+            children: <Step1_Import contextData={contextData} updateContextData={updateContextData} />
+          }
+        ];
+      } else {
+        return [
+          {
+            key: TabType.STEP1,
+            label: 'Step 1',
+            children: <Step0 contextData={contextData} updateContextData={updateContextData} />
+          },
+          {
+            key: TabType.STEP2,
+            label: 'Step 2',
+            children: <Step1_Import contextData={contextData} updateContextData={updateContextData} />
+          },
+          {
+            key: TabType.STEP3,
+            label: 'Step 3',
+            children: <Step2 contextData={contextData} updateContextData={updateContextData} />
+          }
+        ];
+      }
     } else {
       return [
         {

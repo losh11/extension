@@ -8,6 +8,7 @@ import { Loading } from '@/ui/components/ActionComponent/Loading';
 import { Empty } from '@/ui/components/Empty';
 import { FeeRateBar } from '@/ui/components/FeeRateBar';
 import InscriptionPreview from '@/ui/components/InscriptionPreview';
+import { OutputValueBar } from '@/ui/components/OutputValueBar';
 import WebsiteBar from '@/ui/components/WebsiteBar';
 import { useCurrentAccount } from '@/ui/state/accounts/hooks';
 import { useNetworkType } from '@/ui/state/settings/hooks';
@@ -129,6 +130,8 @@ interface StepProps {
 function InscribeTransferStep({ contextData, updateContextData }: StepProps) {
   const networkType = useNetworkType();
   const [getApproval, resolveApproval, rejectApproval] = useApproval();
+
+  const [defaultOutputValue, setOutputValue] = useState(10000);
 
   const handleCancel = () => {
     rejectApproval('User rejected the request.');
@@ -287,14 +290,27 @@ function InscribeTransferStep({ contextData, updateContextData }: StepProps) {
               <Input
                 preset="amount"
                 placeholder={'Amount'}
-                value={inputAmount}
+                defaultValue={inputAmount}
                 autoFocus={true}
-                onChange={async (e) => {
-                  setInputAmount(e.target.value);
+                enableBrc20Decimal={true}
+                onAmountInputChange={(amount) => {
+                  setInputAmount(amount);
                 }}
                 disabled={inputDisabled}
               />
               {inputError && <Text text={inputError} color="error" />}
+            </Column>
+
+            <Column mt="lg">
+              <Text text="OutputValue" color="textDim" />
+
+              <OutputValueBar
+                defaultValue={defaultOutputValue}
+                minValue={defaultOutputValue}
+                onChange={(val) => {
+                  setOutputValue(val);
+                }}
+              />
             </Column>
 
             <Column>
@@ -519,23 +535,6 @@ function InscribeResultStep({
   contextData: ContextData;
   updateContextData: (params: UpdateContextDataParams) => void;
 }) {
-  // contextData.tokenBalance = {
-  //   availableBalance: '1900',
-  //   availableBalanceSafe: '1900',
-  //   availableBalanceUnSafe: '0',
-  //   overallBalance: '2000',
-  //   ticker: 'sats',
-  //   transferableBalance: '100'
-  // };
-  // contextData.order = {
-  //   orderId: 'fd9915ced9091f74765ad5c17e7e83425b875a87',
-  //   payAddress: 'bc1p7fmwed05ux6hxn6pz63a8ce7nnzmdppfydny2e3gspdxxtc37duqex24ss',
-  //   totalFee: 6485,
-  //   minerFee: 3940,
-  //   originServiceFee: 2499,
-  //   serviceFee: 1999,
-  //   outputValue: 546
-  // };
   if (!contextData.order || !contextData.tokenBalance) {
     return <Empty />;
   }
@@ -631,7 +630,7 @@ function InscribeResultStep({
         <Column justifyCenter mt="xxl" gap="xl">
           <Text text="Inscribe Success" preset="title-bold" textCenter />
           <Column justifyCenter itemsCenter>
-            <InscriptionPreview data={result.inscription} preset="medium" />
+            <InscriptionPreview data={result} preset="medium" />
 
             <Column mt="lg">
               <Text

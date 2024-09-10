@@ -8,7 +8,7 @@ var minimist = require('minimist');
 var packageConfig = require('./package.json');
 const { exit } = require('process');
 const uglify = require('gulp-uglify');
-
+const fs = require('fs');
 //parse arguments
 var knownOptions = {
   string: ['env', 'browser', 'manifest', 'channel'],
@@ -32,6 +32,7 @@ var options = {
   manifest: knownOptions.default.manifest
 };
 options = minimist(process.argv.slice(2), knownOptions);
+// console.log(options);
 if (!supported_envs.includes(options.env)) {
   console.error(`not supported env: [${options.env}]. It should be one of ${supported_envs.join(', ')}.`);
   exit(0);
@@ -46,12 +47,20 @@ if (!supported_mvs.includes(options.manifest)) {
 }
 
 //tasks...
-function task_clean() {
-  return gulp.src(`dist/${options.browser}/*`, { read: false }).pipe(clean());
+function task_clean(cb) {
+  const targetDir = `dist/${options.browser}`;
+
+  if (fs.existsSync(targetDir)) {
+    return gulp.src(`${targetDir}/*`, { read: false }).pipe(clean());
+  } else {
+    console.log(`Directory ${targetDir} does not exist.`);
+    cb(); // Signal asynchronous completion
+  }
+  // return gulp.src(`dist/${options.browser}/*`, { read: false }).pipe(clean());
 }
 
 function task_prepare() {
-  return gulp.src('build/_raw/**/*').pipe(gulp.dest(`dist/${options.browser}`));
+  return gulp.src('build/_raw/**/*', { encoding: false }).pipe(gulp.dest(`dist/${options.browser}`));
 }
 
 function task_merge_manifest() {
@@ -82,7 +91,7 @@ function task_webpack(cb) {
   webpack(
     webpackConfigFunc({
       version: validVersion,
-      config: options.env,
+      config: 'dev',
       browser: options.browser,
       manifest: options.manifest,
       channel: options.channel
@@ -105,17 +114,28 @@ function task_package(cb) {
   if (options.env == 'pro') {
     if (options.browser == 'firefox') {
       return gulp
-        .src(`dist/${options.browser}/**/*`)
+        .src(`dist/${options.browser}/**/*`, { encoding: false })
         .pipe(zip(`${brandName}-${options.browser}-${options.manifest}-v${version}.xpi`))
         .pipe(gulp.dest('./dist'));
     } else {
       return gulp
-        .src(`dist/${options.browser}/**/*`)
+        .src(`dist/${options.browser}/**/*`, { encoding: false })
         .pipe(zip(`${brandName}-${options.browser}-${options.manifest}-v${version}.zip`))
         .pipe(gulp.dest('./dist'));
     }
   }
   cb();
+}
+
+function task_exit_watch(cb) {
+  if (options.env === 'pro') {
+    console.log('Exiting watch mode after task_package...');
+    cb();
+    exit(0);
+  } else {
+    cb();
+    // exit(0);
+  }
 }
 
 exports.build = gulp.series(
@@ -124,6 +144,7 @@ exports.build = gulp.series(
   task_merge_manifest,
   task_clean_tmps,
   task_webpack,
-  task_uglify,
-  task_package
+  // task_uglify,
+  task_package,
+  task_exit_watch
 );

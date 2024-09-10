@@ -78,7 +78,7 @@ export function useTxIdUrl(txid: string) {
   if (networkType === NetworkType.MAINNET) {
     return `https://litecoinspace.org/tx/${txid}`;
   } else {
-    return `https://blockexplorer.one/litecoin/testnet/tx/${txid}`;
+    return `https://litecoinspace.org/testnet/tx/${txid}`;
   }
 }
 
@@ -94,8 +94,9 @@ export function useVersionInfo() {
   const skippedVersion = accountsState.skippedVersion;
   const currentVesion = VERSION;
   let skipped = false;
+
+  // skip if new version is empty
   if (!newVersion) {
-    // skip if not initialized
     skipped = true;
   }
   if (newVersion === currentVesion) {
